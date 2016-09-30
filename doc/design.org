@@ -1,0 +1,39 @@
+* Docscan Design Document
+
+** Purpose
+
+Docscan should help me save all my scanned documents to PDF. So far I
+was using Photoshop:
+- Load the scanned image
+- Crop and perhaps color-enhance
+- Save to PDF (choose the correct quality preset and give a name)
+- Repeat for each one
+
+I would like it to be faster and work for multiple documents at once
+
+** UI
+
+: +--------------------+------------------------------------+
+: |  <---     ---->    | Tool bar (Crop, rotate, other?)    |
+: |                    +------------------------------------+
+: |  Name              |                                    |
+: |                    |                                    |
+: |  Date picker       |                                    |
+: |                    |                                    |
+: |  Save              |                                    |
+: |                    |                                    |
+: |                    |                                    |
+: |                    |                                    |
+: |                    |                                    |
+: |                    |        Image                       |
+: |                    |                                    |
+: |                    |                                    |
+: |                    |                                    |
+: |                    |                                    |
+: +--------------------+------------------------------------+
+
+** Use Cases
+
+*** Scan a Document
+
+Drag and drop, arrows are disabled, name, date and click save
