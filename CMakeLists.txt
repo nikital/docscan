@@ -6,5 +6,9 @@ include (${wxWidgets_USE_FILE})
 project (docscan)
 set (CMAKE_CXX_STANDARD 14)
 
-add_executable (docscan src/main.cpp)
+add_executable (docscan
+  src/main.cpp
+  src/docscan_frame.cpp
+  )
+
 target_link_libraries (docscan ${wxWidgets_LIBRARIES})
