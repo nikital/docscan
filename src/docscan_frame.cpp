@@ -2,6 +2,20 @@
 
 #include "image_editor.hpp"
 
+#include <iostream>
+
+class W : public wxFileDropTarget
+{
+    bool OnDropFiles (wxCoord x, wxCoord y, const wxArrayString& files) override
+    {
+        for (const auto& f : files)
+        {
+            std::cout << f << "\n";
+        }
+        return true;
+    }
+};
+
 Docscan_frame::Docscan_frame ()
     : wxFrame {nullptr, wxID_ANY, "Docscan"}
 {
@@ -29,4 +43,16 @@ Docscan_frame::Docscan_frame ()
     top->Add (editor, top_flags.Proportion (1));
 
     SetSizerAndFit (top);
+
+    SetDropTarget (this);
+    DragAcceptFiles (true);
+}
+
+bool Docscan_frame::OnDropFiles (wxCoord x, wxCoord y, const wxArrayString& files)
+{
+    for (const auto& f : files)
+    {
+        std::cout << f << "\n";
+    }
+    return true;
 }

@@ -4,7 +4,6 @@ wxBEGIN_EVENT_TABLE (Image_editor, wxWindow)
 EVT_PAINT (Image_editor::on_paint)
 wxEND_EVENT_TABLE ();
 
-
 Image_editor::Image_editor (wxWindow * parent, wxWindowID id)
     : wxWindow {parent, id, wxDefaultPosition, wxSize {300, 400}}
 {
