@@ -10,7 +10,5 @@ public:
 private:
     void on_paint (wxPaintEvent& e);
 
-    int brush_ = 0;
-
     wxDECLARE_EVENT_TABLE ();
 };
