@@ -1,13 +1,16 @@
 #pragma once
 
-#include <wx/wx.h>
-#include <wx/dnd.h>
+#include "common.hpp"
 
-class Docscan_frame : public wxFrame, public wxFileDropTarget
+class Controller;
+
+class Docscan_frame : public wxFrame
 {
 public:
-    Docscan_frame ();
+    Docscan_frame (Controller& controller);
 
 private:
-    bool OnDropFiles (wxCoord x, wxCoord y, const wxArrayString& files) override;
+    bool on_drop_files (const wxArrayString& files);
+
+    Controller& controller_;
 };

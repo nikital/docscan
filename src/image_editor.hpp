@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wx/wx.h>
+#include "common.hpp"
 
 class Image_editor : public wxWindow
 {

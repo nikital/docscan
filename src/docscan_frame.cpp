@@ -1,23 +1,29 @@
 #include "docscan_frame.hpp"
 
 #include "image_editor.hpp"
+#include "controller.hpp"
 
-#include <iostream>
+#include <wx/dnd.h>
 
-class W : public wxFileDropTarget
+class Drop_target : public wxFileDropTarget
 {
+public:
+    using Callback = std::function<bool(const wxArrayString&)>;
+    Drop_target (Callback callback)
+        : callback_ {std::move (callback)} {}
+
     bool OnDropFiles (wxCoord x, wxCoord y, const wxArrayString& files) override
     {
-        for (const auto& f : files)
-        {
-            std::cout << f << "\n";
-        }
-        return true;
+        return callback_ (files);
     }
+
+private:
+    Callback callback_;
 };
 
-Docscan_frame::Docscan_frame ()
-    : wxFrame {nullptr, wxID_ANY, "Docscan"}
+Docscan_frame::Docscan_frame (Controller& controller)
+    : wxFrame {nullptr, wxID_ANY, "Docscan"},
+      controller_ {controller}
 {
     auto menu_bar = new wxMenuBar {};
     SetMenuBar (menu_bar);
@@ -44,15 +50,16 @@ Docscan_frame::Docscan_frame ()
 
     SetSizerAndFit (top);
 
-    SetDropTarget (this);
+    using namespace std::placeholders;
+    auto drop_target = new Drop_target {std::bind (&Docscan_frame::on_drop_files, this, _1)};
+    SetDropTarget (drop_target);
     DragAcceptFiles (true);
 }
 
-bool Docscan_frame::OnDropFiles (wxCoord x, wxCoord y, const wxArrayString& files)
+bool Docscan_frame::on_drop_files (const wxArrayString& files)
 {
-    for (const auto& f : files)
-    {
-        std::cout << f << "\n";
-    }
+    auto files_vector = std::vector<string> (std::begin(files), std::end(files));
+    controller_.on_drop_files (std::move (files_vector));
+
     return true;
 }

@@ -8,6 +8,7 @@ set (CMAKE_CXX_STANDARD 14)
 
 add_executable (docscan
   src/main.cpp
+  src/controller.cpp
   src/docscan_frame.cpp
   src/image_editor.cpp
   )
