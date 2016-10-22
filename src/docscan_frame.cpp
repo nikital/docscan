@@ -23,7 +23,8 @@ private:
 
 Docscan_frame::Docscan_frame (Controller& controller)
     : wxFrame {nullptr, wxID_ANY, "Docscan"},
-      controller_ {controller}
+      controller_ {controller},
+      editor_ {new Image_editor {this, wxID_ANY}}
 {
     auto menu_bar = new wxMenuBar {};
     SetMenuBar (menu_bar);
@@ -41,14 +42,13 @@ Docscan_frame::Docscan_frame (Controller& controller)
     control->AddStretchSpacer ();
     control->Add (save);
 
-    auto editor = new Image_editor {this, wxID_ANY};
-
     auto top = new wxBoxSizer {wxHORIZONTAL};
     auto top_flags = wxSizerFlags {}.Border (wxALL, 10).Expand ();
     top->Add (control, top_flags);
-    top->Add (editor, top_flags.Proportion (1));
+    top->Add (editor_, top_flags.Proportion (1));
 
     SetSizerAndFit (top);
+    Maximize ();
 
     using namespace std::placeholders;
     auto drop_target = new Drop_target {std::bind (&Docscan_frame::on_drop_files, this, _1)};
@@ -56,8 +56,17 @@ Docscan_frame::Docscan_frame (Controller& controller)
     DragAcceptFiles (true);
 }
 
+void Docscan_frame::load_image (const string& path)
+{
+    editor_->load_image (path);
+}
+
 bool Docscan_frame::on_drop_files (const wxArrayString& files)
 {
+    if (files.empty ())
+    {
+        return false;
+    }
     auto files_vector = std::vector<string> (std::begin(files), std::end(files));
     controller_.on_drop_files (std::move (files_vector));
 

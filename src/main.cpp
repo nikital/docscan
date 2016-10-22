@@ -14,6 +14,8 @@ wxIMPLEMENT_APP(Docscan_app);
 
 bool Docscan_app::OnInit()
 {
+    wxImage::AddHandler (new wxJPEGHandler);
+    wxImage::AddHandler (new wxPNGHandler);
     auto frame = new Docscan_frame {controller_};
     controller_.init (frame);
     frame->Show (true);
