@@ -46,12 +46,16 @@ void Image_editor::on_paint (wxPaintEvent& e)
     auto scale = std::min (scale_w, scale_h);
     auto bitmap_scale_size = bitmap_size;
     bitmap_scale_size.Scale (scale, scale);
+    auto dest_rect = wxRect {
+        (canvas_size.GetWidth () - bitmap_scale_size.GetWidth ()) / 2,
+        (canvas_size.GetHeight () - bitmap_scale_size.GetHeight ()) / 2,
+		bitmap_scale_size.GetWidth (), bitmap_scale_size.GetHeight ()
+    };
 
     // Blit scaled from center
     dc.StretchBlit (
-        (canvas_size.GetWidth () - bitmap_scale_size.GetWidth ()) / 2,
-        (canvas_size.GetHeight () - bitmap_scale_size.GetHeight ()) / 2,
-		bitmap_scale_size.GetWidth (), bitmap_scale_size.GetHeight (),
+        dest_rect.GetX (), dest_rect.GetY (),
+		dest_rect.GetWidth (), dest_rect.GetHeight (),
 		&bitmap,
 		0, 0,
 		bitmap_size.GetWidth (), bitmap_size.GetHeight ()
@@ -59,10 +63,34 @@ void Image_editor::on_paint (wxPaintEvent& e)
 
     if (state_ == State::CROP)
     {
-        dc.SetBrush (*wxBLACK_BRUSH);
+        dc.SetPen (*wxTRANSPARENT_PEN);
+        dc.SetBrush (wxBrush {*wxBLACK, wxBRUSHSTYLE_FDIAGONAL_HATCH });
+
+        dc.DrawRectangle (wxRect {
+                wxPoint {dest_rect.GetLeft (), dest_rect.GetTop ()},
+                wxPoint {dest_rect.GetRight (), crop_start_.y}});
+        dc.DrawRectangle (wxRect {
+                wxPoint {dest_rect.GetLeft (), crop_end_.y},
+                wxPoint {dest_rect.GetRight (), dest_rect.GetBottom ()}});
+        if (crop_start_.x > dest_rect.GetLeft ())
+        {
+            dc.DrawRectangle (wxRect {
+                    wxPoint {dest_rect.GetLeft (), crop_start_.y},
+                    wxPoint {crop_start_.x, crop_end_.y}});
+        }
+        if (crop_end_.x < dest_rect.GetRight ())
+        {
+            dc.DrawRectangle (wxRect {
+                    wxPoint {crop_end_.x, crop_start_.y},
+                    wxPoint {dest_rect.GetRight (), crop_end_.y}});
+        }
+
+        dc.SetPen (wxPen {*wxRED, 4});
+        dc.SetBrush (*wxTRANSPARENT_BRUSH);
         auto size = wxSize {crop_end_.x - crop_start_.x, crop_end_.y - crop_start_.y};
         dc.DrawRectangle (crop_start_, size);
     }
+
 }
 
 void Image_editor::on_mouse (wxMouseEvent& e)
