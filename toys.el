@@ -1,0 +1,6 @@
+(defun docscan-build ()
+  (interactive)
+  (save-some-buffers 'no-confirm)
+  (let ((default-directory (concat (projectile-project-root) "/out/")))
+    (compile "make && ./docscan")))
+(bind-key "<f4>" 'docscan-build)

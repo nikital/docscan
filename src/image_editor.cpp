@@ -37,21 +37,30 @@ void Image_editor::on_paint (wxPaintEvent& e)
         return;
     }
 
+    wxMemoryDC bitmap {*bitmap_.get ()};
     dc.Clear ();
     auto canvas_size = GetSize ();
     auto bitmap_size = bitmap_->GetSize ();
     auto scale_w = (float) canvas_size.GetWidth () / bitmap_size.GetWidth ();
     auto scale_h = (float) canvas_size.GetHeight () / bitmap_size.GetHeight ();
     auto scale = std::min (scale_w, scale_h);
-    dc.SetUserScale (scale, scale);
-    dc.DrawBitmap (*bitmap_,
-                   (canvas_size.GetWidth () - bitmap_size.GetWidth () * scale) / 2 / scale,
-                   (canvas_size.GetHeight () - bitmap_size.GetHeight () * scale) / 2 / scale);
+    auto bitmap_scale_size = bitmap_size;
+    bitmap_scale_size.Scale (scale, scale);
+
+    // Blit scaled from center
+    dc.StretchBlit (
+        (canvas_size.GetWidth () - bitmap_scale_size.GetWidth ()) / 2,
+        (canvas_size.GetHeight () - bitmap_scale_size.GetHeight ()) / 2,
+		bitmap_scale_size.GetWidth (), bitmap_scale_size.GetHeight (),
+		&bitmap,
+		0, 0,
+		bitmap_size.GetWidth (), bitmap_size.GetHeight ()
+        );
+
     if (state_ == State::CROP)
     {
         dc.SetBrush (*wxBLACK_BRUSH);
         auto size = wxSize {crop_end_.x - crop_start_.x, crop_end_.y - crop_start_.y};
-        dc.SetUserScale (1, 1);
         dc.DrawRectangle (crop_start_, size);
     }
 }
