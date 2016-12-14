@@ -37,10 +37,11 @@ static wxRect image_space_from_window_space (
     auto scale_w = (float) image_size.GetWidth () / image_in_window.GetWidth ();
     auto scale_h = (float) image_size.GetHeight () / image_in_window.GetHeight ();
 
+    auto image_in_window_position = image_in_window.GetPosition ();
     auto window_space_position = window_space.GetPosition ();
     auto image_space_position = wxPoint (
-        (window_space_position.x - image_in_window.GetPosition ().x) * scale_w,
-        (window_space_position.y - image_in_window.GetPosition ().y) * scale_h);
+        (window_space_position.x - image_in_window_position.x) * scale_w,
+        (window_space_position.y - image_in_window_position.y) * scale_h);
     auto image_space_size = window_space.GetSize ().Scale (scale_w, scale_h);
 
     return wxRect {image_space_position, image_space_size};
@@ -53,10 +54,11 @@ static wxRect window_space_from_image_space (
     auto scale_w = (float) image_in_window.GetWidth () / image_size.GetWidth ();
     auto scale_h = (float) image_in_window.GetHeight () / image_size.GetHeight ();
 
+    auto image_in_window_position = image_in_window.GetPosition ();
     auto image_space_position = image_space.GetPosition ();
     auto window_space_position = wxPoint (
-        image_space_position.x * scale_w + image_in_window.GetPosition ().x,
-        image_space_position.y * scale_h + image_in_window.GetPosition ().y);
+        image_space_position.x * scale_w + image_in_window_position.x,
+        image_space_position.y * scale_h + image_in_window_position.y);
     auto window_space_size = image_space.GetSize ().Scale (scale_w, scale_h);
 
     return wxRect {window_space_position, window_space_size};
@@ -146,11 +148,16 @@ void Image_editor::on_mouse (wxMouseEvent& e)
         else
         {
             state_ = State::CROPPED;
-            // if (crop_start_.x > crop_end_.x) std::swap (crop_start_.x, crop_end_.x);
-            // if (crop_start_.y > crop_end_.y) std::swap (crop_start_.y, crop_end_.y);
+
+            auto top_left = crop_.GetTopLeft ();
+            auto bottom_right = crop_.GetBottomRight ();
+            if (top_left.x > bottom_right.x) std::swap (top_left.x, bottom_right.x);
+            if (top_left.y > bottom_right.y) std::swap (top_left.y, bottom_right.y);
+
             auto bitmap_size = bitmap_->GetSize ();
             auto image_rect = compute_image_rect ();
-            crop_ = image_space_from_window_space (crop_, bitmap_size, image_rect);
+            crop_ = image_space_from_window_space (wxRect {top_left, bottom_right},
+                                                   bitmap_size, image_rect);
             crop_ *= wxRect {bitmap_size};
         }
         Refresh ();
