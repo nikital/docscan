@@ -40,9 +40,12 @@ static wxRect image_space_from_window_space (
     auto image_in_window_position = image_in_window.GetPosition ();
     auto window_space_position = window_space.GetPosition ();
     auto image_space_position = wxPoint (
-        (window_space_position.x - image_in_window_position.x) * scale_w,
-        (window_space_position.y - image_in_window_position.y) * scale_h);
-    auto image_space_size = window_space.GetSize ().Scale (scale_w, scale_h);
+        std::round ((window_space_position.x - image_in_window_position.x) * scale_w),
+        std::round ((window_space_position.y - image_in_window_position.y) * scale_h));
+    auto window_space_size = window_space.GetSize ();
+    auto image_space_size = wxSize (
+        std::round (window_space_size.GetWidth () * scale_w),
+        std::round (window_space_size.GetHeight () * scale_h));
 
     return wxRect {image_space_position, image_space_size};
 }
@@ -57,9 +60,12 @@ static wxRect window_space_from_image_space (
     auto image_in_window_position = image_in_window.GetPosition ();
     auto image_space_position = image_space.GetPosition ();
     auto window_space_position = wxPoint (
-        image_space_position.x * scale_w + image_in_window_position.x,
-        image_space_position.y * scale_h + image_in_window_position.y);
-    auto window_space_size = image_space.GetSize ().Scale (scale_w, scale_h);
+        std::round (image_space_position.x * scale_w + image_in_window_position.x),
+        std::round (image_space_position.y * scale_h + image_in_window_position.y));
+    auto image_space_size = image_space.GetSize ();
+    auto window_space_size = wxSize (
+        std::round (image_space_size.GetWidth () * scale_w),
+        std::round (image_space_size.GetHeight () * scale_h));
 
     return wxRect {window_space_position, window_space_size};
 }
@@ -94,32 +100,26 @@ void Image_editor::on_paint (wxPaintEvent& e)
     }
     else if (state_ == State::CROPPED)
     {
-        dc.SetPen (wxPen {*wxRED, 4});
+        dc.SetPen (*wxBLACK_PEN);
         dc.SetBrush (*wxTRANSPARENT_BRUSH);
-        auto r = window_space_from_image_space (crop_, bitmap_->GetSize (), image_rect);
-        dc.DrawRectangle (r);
+        auto crop = window_space_from_image_space (crop_, bitmap_->GetSize (), image_rect);
+        dc.DrawRectangle (crop);
 
-        // dc.SetPen (*wxTRANSPARENT_PEN);
-        // dc.SetBrush (wxBrush {*wxBLACK, wxBRUSHSTYLE_CROSSDIAG_HATCH });
+        dc.SetPen (*wxTRANSPARENT_PEN);
+        dc.SetBrush (wxBrush {*wxBLACK, wxBRUSHSTYLE_CROSSDIAG_HATCH });
 
-        // dc.DrawRectangle (wxRect {
-        //         image_rect.GetTopLeft (),
-        //         wxPoint {image_rect.GetRight (), crop_start_.y}});
-        // dc.DrawRectangle (wxRect {
-        //         wxPoint {image_rect.GetLeft (), crop_end_.y},
-        //         image_rect.GetBottomRight ()});
-        // if (crop_start_.x > image_rect.GetLeft ())
-        // {
-        //     dc.DrawRectangle (wxRect {
-        //             wxPoint {image_rect.GetLeft (), crop_start_.y},
-        //             wxPoint {crop_start_.x, crop_end_.y}});
-        // }
-        // if (crop_end_.x < image_rect.GetRight ())
-        // {
-        //     dc.DrawRectangle (wxRect {
-        //             wxPoint {crop_end_.x, crop_start_.y},
-        //             wxPoint {image_rect.GetRight (), crop_end_.y}});
-        // }
+        dc.DrawRectangle (wxRect {
+                image_rect.GetTopLeft (),
+                wxPoint {image_rect.GetRight (), crop.GetTop ()}});
+        dc.DrawRectangle (wxRect {
+                wxPoint {image_rect.GetLeft (), crop.GetBottom ()},
+                image_rect.GetBottomRight ()});
+        dc.DrawRectangle (wxRect {
+                wxPoint {image_rect.GetLeft (), crop.GetTop ()},
+                crop.GetBottomLeft ()});
+        dc.DrawRectangle (wxRect {
+                crop.GetTopRight (),
+                wxPoint {image_rect.GetRight (), crop.GetBottom ()}});
     }
 
 }
@@ -128,20 +128,18 @@ void Image_editor::on_mouse (wxMouseEvent& e)
 {
     if (e.LeftDown ())
     {
-        std::cout << "Drag start\n";
         assert (state_ == State::NONE || state_ == State::CROPPED);
         crop_ = wxRect {e.GetPosition (), e.GetPosition ()};
         state_ = State::CROPPING;
     }
     if (e.Dragging ())
     {
-        std::cout << "Dragging\n";
         Refresh ();
         crop_.SetBottomRight (e.GetPosition ());
     }
     if (e.LeftUp ())
     {
-        if (crop_.GetWidth () == 0 || crop_.GetHeight () == 0)
+        if (crop_.GetLeft () == crop_.GetRight () || crop_.GetTop () == crop_.GetBottom ())
         {
             state_ = State::NONE;
         }
