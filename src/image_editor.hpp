@@ -12,6 +12,7 @@ public:
 private:
     void on_paint (wxPaintEvent& e);
     void on_mouse (wxMouseEvent& e);
+    wxRect compute_image_rect ();
 
     wxStaticText * const drop_here_;
     std::unique_ptr<wxBitmap> bitmap_;
@@ -19,8 +20,12 @@ private:
     enum class State
     {
         NONE,
-        CROP,
+        CROPPING,
+        CROPPED,
     } state_ = State::NONE;
+    // When cropping, points are in windows space
+    // When cropped, points are in image space
+    // TODO(nik) Move to wxRect
     wxPoint crop_start_;
     wxPoint crop_end_;
 
