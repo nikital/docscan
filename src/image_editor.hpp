@@ -25,9 +25,7 @@ private:
     } state_ = State::NONE;
     // When cropping, points are in windows space
     // When cropped, points are in image space
-    // TODO(nik) Move to wxRect
-    wxPoint crop_start_;
-    wxPoint crop_end_;
+    wxRect crop_;
 
     wxDECLARE_EVENT_TABLE ();
 };

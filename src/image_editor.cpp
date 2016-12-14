@@ -88,16 +88,14 @@ void Image_editor::on_paint (wxPaintEvent& e)
     {
         dc.SetPen (wxPen {*wxRED, 4});
         dc.SetBrush (*wxTRANSPARENT_BRUSH);
-        auto size = wxSize {crop_end_.x - crop_start_.x, crop_end_.y - crop_start_.y};
-        dc.DrawRectangle (crop_start_, size);
+        dc.DrawRectangle (crop_);
     }
     else if (state_ == State::CROPPED)
     {
         dc.SetPen (wxPen {*wxRED, 4});
         dc.SetBrush (*wxTRANSPARENT_BRUSH);
-        auto r = window_space_from_image_space (wxRect {crop_start_, crop_end_},
-                                                bitmap_->GetSize (), image_rect);
-        dc.DrawRectangle (r.GetPosition (), r.GetSize ());
+        auto r = window_space_from_image_space (crop_, bitmap_->GetSize (), image_rect);
+        dc.DrawRectangle (r);
 
         // dc.SetPen (*wxTRANSPARENT_PEN);
         // dc.SetBrush (wxBrush {*wxBLACK, wxBRUSHSTYLE_CROSSDIAG_HATCH });
@@ -130,35 +128,30 @@ void Image_editor::on_mouse (wxMouseEvent& e)
     {
         std::cout << "Drag start\n";
         assert (state_ == State::NONE || state_ == State::CROPPED);
-        crop_end_ = crop_start_ = e.GetPosition ();
+        crop_ = wxRect {e.GetPosition (), e.GetPosition ()};
         state_ = State::CROPPING;
     }
     if (e.Dragging ())
     {
         std::cout << "Dragging\n";
         Refresh ();
-        crop_end_ = e.GetPosition ();
+        crop_.SetBottomRight (e.GetPosition ());
     }
     if (e.LeftUp ())
     {
-        if (crop_start_ == crop_end_)
+        if (crop_.GetWidth () == 0 || crop_.GetHeight () == 0)
         {
             state_ = State::NONE;
         }
         else
         {
             state_ = State::CROPPED;
-            if (crop_start_.x > crop_end_.x) std::swap (crop_start_.x, crop_end_.x);
-            if (crop_start_.y > crop_end_.y) std::swap (crop_start_.y, crop_end_.y);
+            // if (crop_start_.x > crop_end_.x) std::swap (crop_start_.x, crop_end_.x);
+            // if (crop_start_.y > crop_end_.y) std::swap (crop_start_.y, crop_end_.y);
             auto bitmap_size = bitmap_->GetSize ();
             auto image_rect = compute_image_rect ();
-            auto crop_rect_in_window = wxRect {crop_start_, crop_end_};
-            auto crop_rect_in_image = image_space_from_window_space (
-                crop_rect_in_window,
-                bitmap_size, image_rect);
-            crop_rect_in_image *= wxRect {bitmap_size};
-            crop_start_ = crop_rect_in_image.GetTopLeft ();
-            crop_end_ = crop_rect_in_image.GetBottomRight ();
+            crop_ = image_space_from_window_space (crop_, bitmap_size, image_rect);
+            crop_ *= wxRect {bitmap_size};
         }
         Refresh ();
     }
