@@ -34,6 +34,8 @@ static wxRect image_space_from_window_space (
     wxRect window_space,
     wxSize image_size, wxRect image_in_window)
 {
+    // This is going to be off a bit because wxWidgets are stupid and
+    // they add +1 to the width and height given the bounds...
     auto scale_w = (float) image_size.GetWidth () / image_in_window.GetWidth ();
     auto scale_h = (float) image_size.GetHeight () / image_in_window.GetHeight ();
 
