@@ -5,6 +5,13 @@
 class Controller;
 class Image_editor;
 
+struct Frame_data
+{
+    wxRect crop;
+    string name;
+    string date;
+};
+
 class Docscan_frame : public wxFrame
 {
 public:
@@ -15,6 +22,7 @@ public:
 
 private:
     bool on_drop_files (const wxArrayString& files);
+    Frame_data get_data ();
     void on_crop_update (wxNotifyEvent& e);
     void on_submit (wxCommandEvent& e);
     void reset_form ();

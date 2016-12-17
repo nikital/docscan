@@ -36,8 +36,19 @@ void Image_editor::unload_image ()
 {
     bitmap_ = nullptr;
     drop_here_->Show ();
+    state_ = State::NONE;
 
     Refresh ();
+}
+
+wxRect Image_editor::get_crop ()
+{
+    assert (bitmap_.get ());
+    if (state_ == State::CROPPED)
+    {
+        return crop_;
+    }
+    return wxRect {bitmap_->GetSize ()};
 }
 
 /**

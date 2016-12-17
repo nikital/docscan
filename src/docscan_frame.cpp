@@ -96,6 +96,15 @@ bool Docscan_frame::on_drop_files (const wxArrayString& files)
     return true;
 }
 
+Frame_data Docscan_frame::get_data ()
+{
+    Frame_data data;
+    data.crop = editor_->get_crop ();
+    data.name = name_->GetValue ();
+    data.date = date_->GetValue ();
+    return data;
+}
+
 void Docscan_frame::on_crop_update (wxNotifyEvent& e)
 {
     name_->SetFocus ();
@@ -103,8 +112,7 @@ void Docscan_frame::on_crop_update (wxNotifyEvent& e)
 
 void Docscan_frame::on_submit (wxCommandEvent& e)
 {
-    wxMessageBox ("File was submitted", "Success");
-    unload_image ();
+    controller_.on_submit (get_data ());
 }
 
 void Docscan_frame::reset_form ()
