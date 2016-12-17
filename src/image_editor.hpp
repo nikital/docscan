@@ -2,6 +2,8 @@
 
 #include "common.hpp"
 
+wxDECLARE_EVENT (CROP_UPDATE_EVENT, wxNotifyEvent);
+
 class Image_editor : public wxWindow
 {
 public:
@@ -13,6 +15,7 @@ private:
     void on_paint (wxPaintEvent& e);
     void on_mouse (wxMouseEvent& e);
     wxRect compute_image_rect ();
+    void emit_crop_update ();
 
     wxStaticText * const drop_here_;
     std::unique_ptr<wxBitmap> bitmap_;

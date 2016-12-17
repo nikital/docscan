@@ -1,5 +1,7 @@
 #include "image_editor.hpp"
 
+wxDEFINE_EVENT (CROP_UPDATE_EVENT, wxNotifyEvent);
+
 wxBEGIN_EVENT_TABLE (Image_editor, wxWindow)
 EVT_PAINT (Image_editor::on_paint)
 EVT_MOUSE_EVENTS (Image_editor::on_mouse)
@@ -23,6 +25,10 @@ void Image_editor::load_image (const string& path)
     std::cout << "Loading " << path << "\n";
     bitmap_ = std::make_unique<wxBitmap> (path, wxBITMAP_TYPE_ANY);
     drop_here_->Hide ();
+
+    state_ = State::NONE;
+    emit_crop_update ();
+
     Refresh ();
 }
 
@@ -159,6 +165,8 @@ void Image_editor::on_mouse (wxMouseEvent& e)
             crop_ = image_space_from_window_space (wxRect {top_left, bottom_right},
                                                    bitmap_size, image_rect);
             crop_ *= wxRect {bitmap_size};
+
+            emit_crop_update ();
         }
         Refresh ();
     }
@@ -175,4 +183,10 @@ wxRect Image_editor::compute_image_rect ()
     bitmap_size.Scale (scale, scale);
 
     return wxRect {bitmap_size}.CenterIn (client_rect);
+}
+
+void Image_editor::emit_crop_update ()
+{
+    wxNotifyEvent crop_event {CROP_UPDATE_EVENT};
+    ProcessWindowEvent (crop_event);
 }

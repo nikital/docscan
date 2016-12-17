@@ -14,7 +14,12 @@ public:
 
 private:
     bool on_drop_files (const wxArrayString& files);
+    void on_crop_update (wxNotifyEvent& e);
 
     Controller& controller_;
-    Image_editor * const editor_;
+    Image_editor * editor_;
+    wxTextCtrl * name_;
+    wxTextCtrl * date_;
+
+    wxDECLARE_EVENT_TABLE ();
 };
