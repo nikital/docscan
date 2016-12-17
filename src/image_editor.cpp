@@ -32,6 +32,14 @@ void Image_editor::load_image (const string& path)
     Refresh ();
 }
 
+void Image_editor::unload_image ()
+{
+    bitmap_ = nullptr;
+    drop_here_->Show ();
+
+    Refresh ();
+}
+
 /**
    Transform a window-space rect to an image-space rect, given an
    image in window space that the transform is relative to.

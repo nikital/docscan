@@ -10,6 +10,7 @@ public:
     Image_editor (wxWindow * parent, wxWindowID id);
 
     void load_image (const string& path);
+    void unload_image ();
 
 private:
     void on_paint (wxPaintEvent& e);

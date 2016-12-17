@@ -11,10 +11,13 @@ public:
     Docscan_frame (Controller& controller);
 
     void load_image (const string& path);
+    void unload_image ();
 
 private:
     bool on_drop_files (const wxArrayString& files);
     void on_crop_update (wxNotifyEvent& e);
+    void on_submit (wxCommandEvent& e);
+    void reset_form ();
 
     Controller& controller_;
     Image_editor * editor_;

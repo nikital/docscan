@@ -4,9 +4,11 @@
 #include "controller.hpp"
 
 #include <wx/dnd.h>
+#include <sstream>
 
 wxBEGIN_EVENT_TABLE (Docscan_frame, wxFrame)
 EVT_NOTIFY (CROP_UPDATE_EVENT, wxID_ANY, Docscan_frame::on_crop_update)
+EVT_TEXT_ENTER (wxID_ANY, Docscan_frame::on_submit)
 wxEND_EVENT_TABLE ();
 
 class Drop_target : public wxFileDropTarget
@@ -34,9 +36,13 @@ Docscan_frame::Docscan_frame (Controller& controller)
 
     auto control_panel = new wxPanel {this};
     auto control = new wxFlexGridSizer {2, wxSize {10, 10}};
-    name_ = new wxTextCtrl {control_panel, wxID_ANY};
+    name_ = new wxTextCtrl {control_panel, wxID_ANY,
+                            wxEmptyString, wxDefaultPosition, wxDefaultSize,
+                            wxTE_PROCESS_ENTER};
     auto name_lbl = new wxStaticText {control_panel, wxID_ANY, "Name:"};
-    date_ = new wxTextCtrl {control_panel, wxID_ANY};
+    date_ = new wxTextCtrl {control_panel, wxID_ANY,
+                            wxEmptyString, wxDefaultPosition, wxDefaultSize,
+                            wxTE_PROCESS_ENTER};
     auto date_lbl = new wxStaticText {control_panel, wxID_ANY, "Date:"};
     auto save = new wxButton {control_panel, wxID_SAVE};
     control->Add (name_lbl, 0, wxALIGN_RIGHT);
@@ -69,6 +75,13 @@ Docscan_frame::Docscan_frame (Controller& controller)
 void Docscan_frame::load_image (const string& path)
 {
     editor_->load_image (path);
+    reset_form ();
+}
+
+void Docscan_frame::unload_image ()
+{
+    editor_->unload_image ();
+    reset_form ();
 }
 
 bool Docscan_frame::on_drop_files (const wxArrayString& files)
@@ -86,4 +99,24 @@ bool Docscan_frame::on_drop_files (const wxArrayString& files)
 void Docscan_frame::on_crop_update (wxNotifyEvent& e)
 {
     name_->SetFocus ();
+}
+
+void Docscan_frame::on_submit (wxCommandEvent& e)
+{
+    wxMessageBox ("File was submitted", "Success");
+    unload_image ();
+}
+
+void Docscan_frame::reset_form ()
+{
+    std::stringstream current_month;
+    current_month << wxDateTime::GetCurrentYear ();
+    current_month << '-';
+    current_month << wxDateTime::GetCurrentMonth ();
+    current_month << '-';
+
+    name_->Clear ();
+    date_->Clear ();
+    date_->SetValue (current_month.str ());
+    date_->SetInsertionPointEnd ();
 }
