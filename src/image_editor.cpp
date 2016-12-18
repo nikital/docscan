@@ -185,8 +185,8 @@ void Image_editor::on_mouse (wxMouseEvent& e)
                                                    bitmap_size, image_rect);
             crop_ *= wxRect {bitmap_size};
 
-            emit_crop_update ();
         }
+        emit_crop_update ();
         Refresh ();
     }
 }
