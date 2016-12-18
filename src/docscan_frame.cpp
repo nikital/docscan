@@ -84,6 +84,16 @@ void Docscan_frame::unload_image ()
     reset_form ();
 }
 
+string Docscan_frame::show_jpeg_save_dialog (const string& name)
+{
+    wxFileDialog d {this, "Save scanned document",
+            wxEmptyString, name,
+            "JPEG file (*.jpg)|*.jpg",
+            wxFD_SAVE | wxFD_OVERWRITE_PROMPT};
+    d.ShowModal ();
+    return d.GetPath ();
+}
+
 bool Docscan_frame::on_drop_files (const wxArrayString& files)
 {
     if (files.empty ())

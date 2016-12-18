@@ -17,4 +17,6 @@ public:
 
 private:
     Docscan_frame * frame_ = nullptr;
+
+    string current_file_;
 };
