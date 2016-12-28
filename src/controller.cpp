@@ -1,6 +1,7 @@
 #include "controller.hpp"
 
 #include "docscan_frame.hpp"
+#include "document_exporter.hpp"
 
 void Controller::init (Docscan_frame * frame)
 {
@@ -28,4 +29,15 @@ void Controller::on_submit (Frame_data data)
               << " to " << br.x << "x" << br.y
               << " and save at " << path
               << "\n";
+
+    auto success = Document_exporter::export_jpeg (
+        path, current_file_, data.crop);
+    if (success)
+    {
+        frame_->unload_image ();
+    }
+    else
+    {
+        frame_->show_error_message ("Failed to export image");
+    }
 }

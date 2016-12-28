@@ -5,6 +5,7 @@
 
 #include <wx/dnd.h>
 #include <sstream>
+#include <iomanip>
 
 wxBEGIN_EVENT_TABLE (Docscan_frame, wxFrame)
 EVT_NOTIFY (CROP_UPDATE_EVENT, wxID_ANY, Docscan_frame::on_crop_update)
@@ -94,6 +95,12 @@ string Docscan_frame::show_jpeg_save_dialog (const string& name)
     return d.GetPath ();
 }
 
+void Docscan_frame::show_error_message (const string& message)
+{
+    wxMessageDialog d {this, message, "Error", wxOK | wxICON_ERROR};
+    d.ShowModal ();
+}
+
 bool Docscan_frame::on_drop_files (const wxArrayString& files)
 {
     if (files.empty ())
@@ -130,7 +137,8 @@ void Docscan_frame::reset_form ()
     std::stringstream current_month;
     current_month << wxDateTime::GetCurrentYear ();
     current_month << '-';
-    current_month << wxDateTime::GetCurrentMonth ();
+    current_month << std::setfill ('0') << std::setw (2);
+    current_month << wxDateTime::GetCurrentMonth () + 1;
     current_month << '-';
 
     name_->Clear ();

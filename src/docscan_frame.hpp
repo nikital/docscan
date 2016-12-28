@@ -19,7 +19,9 @@ public:
 
     void load_image (const string& path);
     void unload_image ();
+
     string show_jpeg_save_dialog (const string& name);
+    void show_error_message (const string& message);
 
 private:
     bool on_drop_files (const wxArrayString& files);
