@@ -21,6 +21,9 @@ private:
 
     wxStaticText * const drop_here_;
     std::unique_ptr<wxBitmap> bitmap_;
+    // Used when user crops, to speed up rendering
+    std::unique_ptr<wxBitmap> downsampled_bitmap_;
+    wxSize image_size_;
 
     enum class State
     {

@@ -23,7 +23,23 @@ Image_editor::Image_editor (wxWindow * parent, wxWindowID id)
 void Image_editor::load_image (const string& path)
 {
     std::cout << "Loading " << path << "\n";
-    bitmap_ = std::make_unique<wxBitmap> (path, wxBITMAP_TYPE_ANY);
+    wxImage image = {path, wxBITMAP_TYPE_ANY};
+    image_size_ = image.GetSize ();
+    bitmap_ = std::make_unique<wxBitmap> (image, wxBITMAP_TYPE_ANY);
+
+    auto downsample_resolution = this->GetSize ().Scale (0.8, 0.8);
+    if (image_size_.GetWidth () > downsample_resolution.GetWidth ()
+        || image_size_.GetHeight () > downsample_resolution.GetHeight ())
+    {
+        auto scale_w = (float) downsample_resolution.GetWidth () / image_size_.GetWidth ();
+        auto scale_h = (float) downsample_resolution.GetHeight () / image_size_.GetHeight ();
+        auto scale = std::max (scale_w, scale_h);
+        image.Rescale (
+            image_size_.GetWidth () * scale, image_size_.GetHeight () * scale,
+            wxIMAGE_QUALITY_HIGH);
+        downsampled_bitmap_ = std::make_unique<wxBitmap> (image, wxBITMAP_TYPE_ANY);
+    }
+
     drop_here_->Hide ();
 
     state_ = State::NONE;
@@ -35,6 +51,7 @@ void Image_editor::load_image (const string& path)
 void Image_editor::unload_image ()
 {
     bitmap_ = nullptr;
+    downsampled_bitmap_ = nullptr;
     drop_here_->Show ();
     state_ = State::NONE;
 
@@ -48,7 +65,7 @@ wxRect Image_editor::get_crop ()
     {
         return crop_;
     }
-    return wxRect {bitmap_->GetSize ()};
+    return wxRect {image_size_};
 }
 
 /**
@@ -107,16 +124,18 @@ void Image_editor::on_paint (wxPaintEvent& e)
         return;
     }
 
-    wxMemoryDC bitmap {*bitmap_.get ()};
+    auto bitmap = (state_ == State::CROPPING && downsampled_bitmap_)
+        ? downsampled_bitmap_.get () : bitmap_.get ();
+    wxMemoryDC bitmap_dc {*bitmap};
     dc.Clear ();
 
     const auto image_rect = compute_image_rect ();
     dc.StretchBlit (
         image_rect.GetX (), image_rect.GetY (),
 		image_rect.GetWidth (), image_rect.GetHeight (),
-		&bitmap,
+		&bitmap_dc,
 		0, 0,
-		bitmap_->GetWidth (), bitmap_->GetHeight ()
+		bitmap->GetWidth (), bitmap->GetHeight ()
         );
 
     if (state_ == State::CROPPING)
@@ -129,7 +148,7 @@ void Image_editor::on_paint (wxPaintEvent& e)
     {
         dc.SetPen (*wxBLACK_PEN);
         dc.SetBrush (*wxTRANSPARENT_BRUSH);
-        auto crop = window_space_from_image_space (crop_, bitmap_->GetSize (), image_rect);
+        auto crop = window_space_from_image_space (crop_, image_size_, image_rect);
         dc.DrawRectangle (crop);
 
         dc.SetPen (*wxTRANSPARENT_PEN);
@@ -179,11 +198,10 @@ void Image_editor::on_mouse (wxMouseEvent& e)
             if (top_left.x > bottom_right.x) std::swap (top_left.x, bottom_right.x);
             if (top_left.y > bottom_right.y) std::swap (top_left.y, bottom_right.y);
 
-            auto bitmap_size = bitmap_->GetSize ();
             auto image_rect = compute_image_rect ();
             crop_ = image_space_from_window_space (wxRect {top_left, bottom_right},
-                                                   bitmap_size, image_rect);
-            crop_ *= wxRect {bitmap_size};
+                                                   image_size_, image_rect);
+            crop_ *= wxRect {image_size_};
 
         }
         emit_crop_update ();
@@ -194,14 +212,14 @@ void Image_editor::on_mouse (wxMouseEvent& e)
 wxRect Image_editor::compute_image_rect ()
 {
     auto client_rect = GetClientRect ();
-    auto bitmap_size = bitmap_->GetSize ();
+    auto image_size = image_size_;
 
-    auto scale_w = (float) client_rect.GetWidth () / bitmap_size.GetWidth ();
-    auto scale_h = (float) client_rect.GetHeight () / bitmap_size.GetHeight ();
+    auto scale_w = (float) client_rect.GetWidth () / image_size.GetWidth ();
+    auto scale_h = (float) client_rect.GetHeight () / image_size.GetHeight ();
     auto scale = std::min (scale_w, scale_h);
-    bitmap_size.Scale (scale, scale);
+    image_size.Scale (scale, scale);
 
-    return wxRect {bitmap_size}.CenterIn (client_rect);
+    return wxRect {image_size}.CenterIn (client_rect);
 }
 
 void Image_editor::emit_crop_update ()
