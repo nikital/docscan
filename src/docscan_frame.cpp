@@ -37,12 +37,13 @@ Docscan_frame::Docscan_frame (Controller& controller)
 
     auto control_panel = new wxPanel {this};
     auto control = new wxFlexGridSizer {2, wxSize {10, 10}};
+    const auto input_size = wxSize {150, -1};
     name_ = new wxTextCtrl {control_panel, wxID_ANY,
-                            wxEmptyString, wxDefaultPosition, wxDefaultSize,
+                            wxEmptyString, wxDefaultPosition, input_size,
                             wxTE_PROCESS_ENTER};
     auto name_lbl = new wxStaticText {control_panel, wxID_ANY, "Name:"};
     date_ = new wxTextCtrl {control_panel, wxID_ANY,
-                            wxEmptyString, wxDefaultPosition, wxDefaultSize,
+                            wxEmptyString, wxDefaultPosition, input_size,
                             wxTE_PROCESS_ENTER};
     auto date_lbl = new wxStaticText {control_panel, wxID_ANY, "Date:"};
     auto save = new wxButton {control_panel, wxID_SAVE};
