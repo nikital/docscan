@@ -10,6 +10,7 @@
 wxBEGIN_EVENT_TABLE (Docscan_frame, wxFrame)
 EVT_NOTIFY (CROP_UPDATE_EVENT, wxID_ANY, Docscan_frame::on_crop_update)
 EVT_TEXT_ENTER (wxID_ANY, Docscan_frame::on_submit)
+EVT_BUTTON (wxID_SAVE, Docscan_frame::on_submit)
 wxEND_EVENT_TABLE ();
 
 class Drop_target : public wxFileDropTarget
