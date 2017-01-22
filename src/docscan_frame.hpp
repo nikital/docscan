@@ -24,7 +24,8 @@ public:
     void show_error_message (const string& message);
 
 private:
-    bool on_drop_files (const wxArrayString& files);
+    bool on_drop_new_doc (const wxArrayString& files);
+    bool on_drop_new_page (const wxArrayString& files);
     Frame_data get_data ();
     void on_crop_update (wxNotifyEvent& e);
     void on_submit (wxCommandEvent& e);

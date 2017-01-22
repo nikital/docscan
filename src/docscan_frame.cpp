@@ -48,12 +48,21 @@ Docscan_frame::Docscan_frame (Controller& controller)
                             wxTE_PROCESS_ENTER};
     auto date_lbl = new wxStaticText {control_panel, wxID_ANY, "Date:"};
     auto save = new wxButton {control_panel, wxID_SAVE};
+
+    auto multipage_lbl = new wxStaticText {control_panel, wxID_ANY, "Multipage:"};
+    auto multipage_frame = new wxWindow {control_panel, wxID_ANY};
+    auto multipage = new wxStaticBoxSizer {wxVERTICAL, multipage_frame};
+    multipage->Add (new wxStaticText {multipage_frame, wxID_ANY, "Drop here"});
+    multipage_frame->SetSizer (multipage);
+
     control->Add (name_lbl, 0, wxALIGN_RIGHT);
     control->Add (name_);
     control->Add (date_lbl, 0, wxALIGN_RIGHT);
     control->Add (date_);
     control->AddStretchSpacer ();
     control->Add (save);
+    control->Add (multipage_lbl);
+    control->Add (multipage_frame);
     control_panel->SetSizer (control);
 
     // initialized here and not in the initalization list because
@@ -70,9 +79,14 @@ Docscan_frame::Docscan_frame (Controller& controller)
     Maximize ();
 
     using namespace std::placeholders;
-    auto drop_target = new Drop_target {std::bind (&Docscan_frame::on_drop_files, this, _1)};
-    SetDropTarget (drop_target);
+    auto new_doc_drop_target = new Drop_target {
+        std::bind (&Docscan_frame::on_drop_new_doc, this, _1)};
+    SetDropTarget (new_doc_drop_target);
     DragAcceptFiles (true);
+    auto new_page_drop_target = new Drop_target {
+        std::bind (&Docscan_frame::on_drop_new_page, this, _1)};
+    multipage_frame->SetDropTarget (new_page_drop_target);
+    multipage_frame->DragAcceptFiles (true);
 }
 
 void Docscan_frame::load_image (const string& path)
@@ -103,7 +117,7 @@ void Docscan_frame::show_error_message (const string& message)
     d.ShowModal ();
 }
 
-bool Docscan_frame::on_drop_files (const wxArrayString& files)
+bool Docscan_frame::on_drop_new_doc (const wxArrayString& files)
 {
     if (files.empty ())
     {
@@ -111,6 +125,17 @@ bool Docscan_frame::on_drop_files (const wxArrayString& files)
     }
     auto files_vector = std::vector<string> (std::begin(files), std::end(files));
     controller_.on_drop_files (std::move (files_vector));
+
+    return true;
+}
+
+bool Docscan_frame::on_drop_new_page (const wxArrayString& files)
+{
+    if (files.empty ())
+    {
+        return false;
+    }
+    std::cout << "Yay we added "<< files[0] << "\n";
 
     return true;
 }
