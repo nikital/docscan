@@ -1,6 +1,7 @@
 #include "docscan_frame.hpp"
 
 #include "image_editor.hpp"
+#include "multipage_editor.hpp"
 #include "controller.hpp"
 
 #include <wx/dnd.h>
@@ -50,10 +51,7 @@ Docscan_frame::Docscan_frame (Controller& controller)
     auto save = new wxButton {control_panel, wxID_SAVE};
 
     auto multipage_lbl = new wxStaticText {control_panel, wxID_ANY, "Multipage:"};
-    auto multipage_frame = new wxWindow {control_panel, wxID_ANY};
-    auto multipage = new wxStaticBoxSizer {wxVERTICAL, multipage_frame};
-    multipage->Add (new wxStaticText {multipage_frame, wxID_ANY, "Drop here"});
-    multipage_frame->SetSizer (multipage);
+    multipage_ = new Multipage_editor {control_panel, wxID_ANY};
 
     control->Add (name_lbl, 0, wxALIGN_RIGHT);
     control->Add (name_);
@@ -62,7 +60,7 @@ Docscan_frame::Docscan_frame (Controller& controller)
     control->AddStretchSpacer ();
     control->Add (save);
     control->Add (multipage_lbl);
-    control->Add (multipage_frame);
+    control->Add (multipage_);
     control_panel->SetSizer (control);
 
     // initialized here and not in the initalization list because
@@ -85,8 +83,8 @@ Docscan_frame::Docscan_frame (Controller& controller)
     DragAcceptFiles (true);
     auto new_page_drop_target = new Drop_target {
         std::bind (&Docscan_frame::on_drop_new_page, this, _1)};
-    multipage_frame->SetDropTarget (new_page_drop_target);
-    multipage_frame->DragAcceptFiles (true);
+    multipage_->SetDropTarget (new_page_drop_target);
+    multipage_->DragAcceptFiles (true);
 }
 
 void Docscan_frame::load_image (const string& path)
@@ -135,7 +133,8 @@ bool Docscan_frame::on_drop_new_page (const wxArrayString& files)
     {
         return false;
     }
-    std::cout << "Yay we added "<< files[0] << "\n";
+    auto files_vector = std::vector<string> (std::begin(files), std::end(files));
+    multipage_->set_pages (files_vector, 0);
 
     return true;
 }

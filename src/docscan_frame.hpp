@@ -4,6 +4,7 @@
 
 class Controller;
 class Image_editor;
+class Multipage_editor;
 
 struct Frame_data
 {
@@ -33,6 +34,7 @@ private:
 
     Controller& controller_;
     Image_editor * editor_;
+    Multipage_editor * multipage_;
     wxTextCtrl * name_;
     wxTextCtrl * date_;
 

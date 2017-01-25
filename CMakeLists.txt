@@ -11,6 +11,7 @@ add_executable (docscan
   src/controller.cpp
   src/docscan_frame.cpp
   src/image_editor.cpp
+  src/multipage_editor.cpp
   src/document_exporter.cpp
   )
 
