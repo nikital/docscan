@@ -8,33 +8,39 @@ void Controller::init (Docscan_frame * frame)
     frame_ = frame;
 }
 
-void Controller::on_drop_files (std::vector<string> files)
+void Controller::on_drop_new_documents (std::vector<string> files)
 {
-    current_file_ = files[0];
-    frame_->load_image (current_file_);
+    doc_ = std::make_unique<Document> ();
+    doc_->pages.push_back (Page {files[0]});
+
+    frame_->load_page (doc_->pages[0]);
 }
 
-void Controller::on_submit (Frame_data data)
+void Controller::on_submit ()
 {
-    auto path = frame_->show_jpeg_save_dialog (data.date + " " + data.name);
+    frame_->update_document (doc_.get ());
+    frame_->update_page (&doc_->pages[0]);
+
+    auto path = frame_->show_jpeg_save_dialog (doc_->date + " " + doc_->name);
     if (path.empty ())
     {
         return;
     }
 
-    auto tl = data.crop.GetTopLeft ();
-    auto br = data.crop.GetBottomRight ();
-    std::cout << "Crop " << current_file_
+    auto& page = doc_->pages[0];
+    auto tl = page.crop.GetTopLeft ();
+    auto br = page.crop.GetBottomRight ();
+    std::cout << "Crop" << page.path
               << " from " << tl.x << "x" << tl.y
               << " to " << br.x << "x" << br.y
               << " and save at " << path
               << "\n";
 
     auto success = Document_exporter::export_jpeg (
-        path, current_file_, data.crop);
+        path, page.path, page.crop);
     if (success)
     {
-        frame_->unload_image ();
+        frame_->unload_page ();
     }
     else
     {

@@ -87,16 +87,28 @@ Docscan_frame::Docscan_frame (Controller& controller)
     multipage_->DragAcceptFiles (true);
 }
 
-void Docscan_frame::load_image (const string& path)
+void Docscan_frame::load_page (const Page& page)
 {
-    editor_->load_image (path);
+    editor_->load_image (page.path);
+    editor_->set_crop (page.crop);
     reset_form ();
 }
 
-void Docscan_frame::unload_image ()
+void Docscan_frame::unload_page ()
 {
     editor_->unload_image ();
     reset_form ();
+}
+
+void Docscan_frame::update_document (Document * doc)
+{
+    doc->name = name_->GetValue ();
+    doc->date = date_->GetValue ();
+}
+
+void Docscan_frame::update_page (Page * page)
+{
+    page->crop = editor_->get_crop ();
 }
 
 string Docscan_frame::show_jpeg_save_dialog (const string& name)
@@ -122,7 +134,7 @@ bool Docscan_frame::on_drop_new_doc (const wxArrayString& files)
         return false;
     }
     auto files_vector = std::vector<string> (std::begin(files), std::end(files));
-    controller_.on_drop_files (std::move (files_vector));
+    controller_.on_drop_new_documents (std::move (files_vector));
 
     return true;
 }
@@ -139,15 +151,6 @@ bool Docscan_frame::on_drop_new_page (const wxArrayString& files)
     return true;
 }
 
-Frame_data Docscan_frame::get_data ()
-{
-    Frame_data data;
-    data.crop = editor_->get_crop ();
-    data.name = name_->GetValue ();
-    data.date = date_->GetValue ();
-    return data;
-}
-
 void Docscan_frame::on_crop_update (wxNotifyEvent& e)
 {
     name_->SetFocus ();
@@ -155,7 +158,7 @@ void Docscan_frame::on_crop_update (wxNotifyEvent& e)
 
 void Docscan_frame::on_submit (wxCommandEvent& e)
 {
-    controller_.on_submit (get_data ());
+    controller_.on_submit ();
 }
 
 void Docscan_frame::reset_form ()

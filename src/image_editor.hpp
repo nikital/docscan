@@ -12,6 +12,7 @@ public:
     void load_image (const string& path);
     void unload_image ();
     wxRect get_crop ();
+    void set_crop (const wxRect& crop);
 
 private:
     void on_paint (wxPaintEvent& e);

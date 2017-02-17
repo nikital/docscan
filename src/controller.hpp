@@ -1,7 +1,6 @@
 #pragma once
 
 class Docscan_frame;
-class Frame_data;
 
 #include "common.hpp"
 
@@ -12,11 +11,16 @@ public:
     Controller (Controller&) = delete;
     void init (Docscan_frame * frame);
 
-    void on_drop_files (std::vector<string> files);
-    void on_submit (Frame_data data);
+    void on_drop_new_documents (std::vector<string> files);
+    void on_drop_new_pages (std::vector<string> files);
+
+    void on_submit ();
+    void on_next_page ();
+    void on_prev_page ();
+    void on_delete_page ();
 
 private:
     Docscan_frame * frame_ = nullptr;
 
-    string current_file_;
+    std::unique_ptr<Document> doc_;
 };

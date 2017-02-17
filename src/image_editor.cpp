@@ -60,12 +60,20 @@ void Image_editor::unload_image ()
 
 wxRect Image_editor::get_crop ()
 {
-    assert (bitmap_.get ());
     if (state_ == State::CROPPED)
     {
         return crop_;
     }
-    return wxRect {image_size_};
+    return {};
+}
+
+void Image_editor::set_crop (const wxRect& crop)
+{
+    if (!crop.IsEmpty ())
+    {
+        crop_ = crop;
+        state_ = State::CROPPED;
+    }
 }
 
 /**
