@@ -14,9 +14,8 @@ public:
     void load_page (const Page& page);
     void unload_page ();
 
-    void pull_document_data (Document * doc);
+    void pull_document_data (Document * doc, int selected_index);
     void push_document_data (const Document& doc, int selected_index);
-    void pull_page_data (Page * page);
 
     string show_jpeg_save_dialog (const string& name);
     void show_error_message (const string& message);
@@ -26,6 +25,9 @@ private:
     bool on_drop_new_page (const wxArrayString& files);
     void on_crop_update (wxNotifyEvent& e);
     void on_submit (wxCommandEvent& e);
+    void on_next_page (wxCommandEvent& e);
+    void on_prev_page (wxCommandEvent& e);
+    void on_remove_page (wxCommandEvent& e);
     void reset_form ();
 
     Controller& controller_;

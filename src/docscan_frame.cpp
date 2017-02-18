@@ -12,6 +12,9 @@ wxBEGIN_EVENT_TABLE (Docscan_frame, wxFrame)
 EVT_NOTIFY (CROP_UPDATE_EVENT, wxID_ANY, Docscan_frame::on_crop_update)
 EVT_TEXT_ENTER (wxID_ANY, Docscan_frame::on_submit)
 EVT_BUTTON (wxID_SAVE, Docscan_frame::on_submit)
+EVT_BUTTON (wxID_DOWN, Docscan_frame::on_next_page)
+EVT_BUTTON (wxID_UP, Docscan_frame::on_prev_page)
+EVT_BUTTON (wxID_REMOVE, Docscan_frame::on_remove_page)
 wxEND_EVENT_TABLE ();
 
 class Drop_target : public wxFileDropTarget
@@ -100,10 +103,11 @@ void Docscan_frame::unload_page ()
     reset_form ();
 }
 
-void Docscan_frame::pull_document_data (Document * doc)
+void Docscan_frame::pull_document_data (Document * doc, int selected_index)
 {
     doc->name = name_->GetValue ();
     doc->date = date_->GetValue ();
+    doc->pages[selected_index].crop = editor_->get_crop ();
 }
 
 void Docscan_frame::push_document_data (const Document& doc, int selected_index)
@@ -117,11 +121,6 @@ void Docscan_frame::push_document_data (const Document& doc, int selected_index)
         date_->SetValue (doc.date);
     }
     multipage_->set_pages (doc.pages, selected_index);
-}
-
-void Docscan_frame::pull_page_data (Page * page)
-{
-    page->crop = editor_->get_crop ();
 }
 
 string Docscan_frame::show_jpeg_save_dialog (const string& name)
@@ -172,6 +171,18 @@ void Docscan_frame::on_crop_update (wxNotifyEvent& e)
 void Docscan_frame::on_submit (wxCommandEvent& e)
 {
     controller_.on_submit ();
+}
+void Docscan_frame::on_next_page (wxCommandEvent& e)
+{
+    controller_.on_next_page ();
+}
+void Docscan_frame::on_prev_page (wxCommandEvent& e)
+{
+    controller_.on_prev_page ();
+}
+void Docscan_frame::on_remove_page (wxCommandEvent& e)
+{
+    controller_.on_remove_page ();
 }
 
 void Docscan_frame::reset_form ()

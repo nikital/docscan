@@ -17,7 +17,7 @@ public:
     void on_submit ();
     void on_next_page ();
     void on_prev_page ();
-    void on_delete_page ();
+    void on_remove_page ();
 
 private:
     Docscan_frame * frame_ = nullptr;

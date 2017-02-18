@@ -12,9 +12,9 @@ Multipage_editor::Multipage_editor (wxWindow * parent, wxWindowID id)
 
     auto buttons = new wxBoxSizer {wxHORIZONTAL};
     auto size = wxSize {30, -1};
-    auto down = new wxButton {this, wxID_DOWN, "<", wxDefaultPosition, size};
+    auto down = new wxButton {this, wxID_UP, "<", wxDefaultPosition, size};
     buttons->Add (down);
-    auto up = new wxButton {this, wxID_UP, ">", wxDefaultPosition, size};
+    auto up = new wxButton {this, wxID_DOWN, ">", wxDefaultPosition, size};
     buttons->Add (up);
     auto remove = new wxButton {this, wxID_REMOVE, "X", wxDefaultPosition, size};
     buttons->Add (remove);
