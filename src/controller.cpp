@@ -20,6 +20,12 @@ void Controller::on_drop_new_documents (std::vector<string> files)
 
 void Controller::on_drop_new_pages (std::vector<string> files)
 {
+    if (!doc_)
+    {
+        on_drop_new_documents (files);
+        return;
+    }
+
     frame_->pull_document_data (doc_.get ());
     for (auto& file : files)
     {
@@ -53,6 +59,7 @@ void Controller::on_submit ()
     if (success)
     {
         frame_->unload_page ();
+        doc_ = nullptr;
     }
     else
     {
