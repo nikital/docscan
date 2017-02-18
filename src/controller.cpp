@@ -12,14 +12,26 @@ void Controller::on_drop_new_documents (std::vector<string> files)
 {
     doc_ = std::make_unique<Document> ();
     doc_->pages.push_back (Page {files[0]});
+    current_page_ = 0;
 
-    frame_->load_page (doc_->pages[0]);
+    frame_->load_page (doc_->pages[current_page_]);
+    frame_->push_document_data (*doc_, current_page_);
+}
+
+void Controller::on_drop_new_pages (std::vector<string> files)
+{
+    frame_->pull_document_data (doc_.get ());
+    for (auto& file : files)
+    {
+        doc_->pages.push_back (Page {file});
+    }
+    frame_->push_document_data (*doc_, current_page_);
 }
 
 void Controller::on_submit ()
 {
-    frame_->update_document (doc_.get ());
-    frame_->update_page (&doc_->pages[0]);
+    frame_->pull_document_data (doc_.get ());
+    frame_->pull_page_data (&doc_->pages[0]);
 
     auto path = frame_->show_jpeg_save_dialog (doc_->date + " " + doc_->name);
     if (path.empty ())

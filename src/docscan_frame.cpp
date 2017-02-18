@@ -100,13 +100,26 @@ void Docscan_frame::unload_page ()
     reset_form ();
 }
 
-void Docscan_frame::update_document (Document * doc)
+void Docscan_frame::pull_document_data (Document * doc)
 {
     doc->name = name_->GetValue ();
     doc->date = date_->GetValue ();
 }
 
-void Docscan_frame::update_page (Page * page)
+void Docscan_frame::push_document_data (const Document& doc, int selected_index)
+{
+    if (!doc.name.empty ())
+    {
+        name_->SetValue (doc.name);
+    }
+    if (!doc.date.empty ())
+    {
+        date_->SetValue (doc.date);
+    }
+    multipage_->set_pages (doc.pages, selected_index);
+}
+
+void Docscan_frame::pull_page_data (Page * page)
 {
     page->crop = editor_->get_crop ();
 }
@@ -146,7 +159,7 @@ bool Docscan_frame::on_drop_new_page (const wxArrayString& files)
         return false;
     }
     auto files_vector = std::vector<string> (std::begin(files), std::end(files));
-    multipage_->set_pages (files_vector, 0);
+    controller_.on_drop_new_pages (files_vector);
 
     return true;
 }

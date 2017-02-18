@@ -14,8 +14,9 @@ public:
     void load_page (const Page& page);
     void unload_page ();
 
-    void update_document (Document * doc);
-    void update_page (Page * page);
+    void pull_document_data (Document * doc);
+    void push_document_data (const Document& doc, int selected_index);
+    void pull_page_data (Page * page);
 
     string show_jpeg_save_dialog (const string& name);
     void show_error_message (const string& message);

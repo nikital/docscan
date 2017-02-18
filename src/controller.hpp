@@ -23,4 +23,5 @@ private:
     Docscan_frame * frame_ = nullptr;
 
     std::unique_ptr<Document> doc_;
+    int current_page_ = 0;
 };

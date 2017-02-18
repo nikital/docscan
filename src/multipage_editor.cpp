@@ -29,7 +29,7 @@ Multipage_editor::Multipage_editor (wxWindow * parent, wxWindowID id)
     set_pages ({}, 0);
 }
 
-void Multipage_editor::set_pages (std::vector<string> pages, int selected_index)
+void Multipage_editor::set_pages (const std::vector<Page>& pages, int selected_index)
 {
     std::stringstream ss;
     ss << DROP_HERE;
@@ -44,7 +44,7 @@ void Multipage_editor::set_pages (std::vector<string> pages, int selected_index)
         for (size_t i = 0; i < pages.size (); ++i)
         {
             ss << (i == selected_index ? "> " : "- ");
-            wxFileName filename = pages[i];
+            wxFileName filename = pages[i].path;
             ss << filename.GetName () << "\n";
         }
     }
