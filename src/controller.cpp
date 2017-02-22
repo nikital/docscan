@@ -11,7 +11,10 @@ void Controller::init (Docscan_frame * frame)
 void Controller::on_drop_new_documents (std::vector<string> files)
 {
     doc_ = std::make_unique<Document> ();
-    doc_->pages.push_back (Page {files[0]});
+    for (auto& file : files)
+    {
+        doc_->pages.push_back (Page {file});
+    }
     current_page_ = 0;
 
     frame_->push_document_data (*doc_, current_page_);
