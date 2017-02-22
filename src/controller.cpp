@@ -76,17 +76,7 @@ void Controller::on_submit ()
         return;
     }
 
-    auto& page = doc_->pages[0];
-    auto tl = page.crop.GetTopLeft ();
-    auto br = page.crop.GetBottomRight ();
-    std::cout << "Crop" << page.path
-              << " from " << tl.x << "x" << tl.y
-              << " to " << br.x << "x" << br.y
-              << " and save at " << path
-              << "\n";
-
-    auto success = Document_exporter::export_jpeg (
-        path, page.path, page.crop);
+    auto success = Document_exporter::export_jpeg (path, *doc_);
     if (success)
     {
         frame_->unload_page ();
