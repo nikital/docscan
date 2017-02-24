@@ -3,6 +3,9 @@
 #include "docscan_frame.hpp"
 #include "document_exporter.hpp"
 
+#include <sstream>
+#include <iomanip>
+
 void Controller::init (Docscan_frame * frame)
 {
     frame_ = frame;
@@ -41,6 +44,15 @@ void Controller::on_drop_new_pages (std::vector<string> files)
 void Controller::load_new_document (std::vector<string> pages)
 {
     doc_ = std::make_unique<Document> ();
+
+    std::stringstream current_month;
+    current_month << wxDateTime::GetCurrentYear ();
+    current_month << '-';
+    current_month << std::setfill ('0') << std::setw (2);
+    current_month << wxDateTime::GetCurrentMonth () + 1;
+    current_month << '-';
+    doc_->date = current_month.str ();
+
     for (auto& page : pages)
     {
         doc_->pages.push_back (Page {page});

@@ -5,8 +5,6 @@
 #include "controller.hpp"
 
 #include <wx/dnd.h>
-#include <sstream>
-#include <iomanip>
 
 wxBEGIN_EVENT_TABLE (Docscan_frame, wxFrame)
 EVT_NOTIFY (CROP_UPDATE_EVENT, wxID_ANY, Docscan_frame::on_crop_update)
@@ -94,7 +92,6 @@ void Docscan_frame::load_page (const Page& page)
 {
     editor_->load_image (page.path);
     editor_->set_crop (page.crop);
-    reset_form ();
 }
 
 void Docscan_frame::unload_page ()
@@ -112,14 +109,9 @@ void Docscan_frame::pull_document_data (Document * doc, int selected_index)
 
 void Docscan_frame::push_document_data (const Document& doc, int selected_index)
 {
-    if (!doc.name.empty ())
-    {
-        name_->SetValue (doc.name);
-    }
-    if (!doc.date.empty ())
-    {
-        date_->SetValue (doc.date);
-    }
+    name_->SetValue (doc.name);
+    date_->SetValue (doc.date);
+    date_->SetInsertionPointEnd ();
     multipage_->set_pages (doc.pages, selected_index);
 }
 
@@ -187,15 +179,7 @@ void Docscan_frame::on_remove_page (wxCommandEvent& e)
 
 void Docscan_frame::reset_form ()
 {
-    std::stringstream current_month;
-    current_month << wxDateTime::GetCurrentYear ();
-    current_month << '-';
-    current_month << std::setfill ('0') << std::setw (2);
-    current_month << wxDateTime::GetCurrentMonth () + 1;
-    current_month << '-';
-
     name_->Clear ();
     date_->Clear ();
-    date_->SetValue (current_month.str ());
-    date_->SetInsertionPointEnd ();
+    multipage_->set_pages ({}, 0);
 }
