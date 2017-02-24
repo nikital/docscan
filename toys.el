@@ -3,5 +3,5 @@
   (evil-normal-state)
   (save-some-buffers 'no-confirm)
   (let ((default-directory (concat (projectile-project-root) "/out/")))
-    (compile "make && ./docscan")))
+    (compile "make && ./Docscan.app/Contents/MacOS/Docscan")))
 (bind-key "<f4>" 'docscan-build)
