@@ -10,22 +10,16 @@ void Controller::init (Docscan_frame * frame)
 
 void Controller::on_drop_new_documents (std::vector<string> files)
 {
-    doc_ = std::make_unique<Document> ();
-    for (auto& file : files)
-    {
-        doc_->pages.push_back (Page {file});
-    }
-    current_page_ = 0;
-
-    frame_->push_document_data (*doc_, current_page_);
-    frame_->load_page (doc_->pages[current_page_]);
+    load_new_document ({files[0]});
+    next_documents_.clear ();
+    next_documents_.insert (next_documents_.begin (), files.begin () + 1, files.end ());
 }
 
 void Controller::on_drop_new_pages (std::vector<string> files)
 {
     if (!doc_)
     {
-        on_drop_new_documents (files);
+        load_new_document (files);
         return;
     }
 
@@ -42,6 +36,19 @@ void Controller::on_drop_new_pages (std::vector<string> files)
     {
         on_next_page ();
     }
+}
+
+void Controller::load_new_document (std::vector<string> pages)
+{
+    doc_ = std::make_unique<Document> ();
+    for (auto& page : pages)
+    {
+        doc_->pages.push_back (Page {page});
+    }
+    current_page_ = 0;
+
+    frame_->push_document_data (*doc_, current_page_);
+    frame_->load_page (doc_->pages[current_page_]);
 }
 
 void Controller::on_next_page ()
@@ -79,11 +86,17 @@ void Controller::on_submit ()
         return;
     }
 
+    std::cout << "pasten\n";
     auto success = Document_exporter::export_jpeg (path, *doc_);
     if (success)
     {
         frame_->unload_page ();
         doc_ = nullptr;
+        if (!next_documents_.empty ())
+        {
+            load_new_document ({next_documents_.back ()});
+            next_documents_.pop_back ();
+        }
     }
     else
     {

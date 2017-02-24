@@ -20,8 +20,13 @@ public:
     void on_remove_page ();
 
 private:
+    void load_new_document (std::vector<string> pages);
+
+private:
     Docscan_frame * frame_ = nullptr;
 
     std::unique_ptr<Document> doc_;
     int current_page_ = 0;
+
+    std::vector<string> next_documents_;
 };
