@@ -7,14 +7,12 @@ bool Document_exporter::export_jpeg (const string& output, Document doc)
 
     auto max_width = 0;
     auto total_height = 0;
-    for (auto i = 0; i < doc.pages.size (); ++i)
+    for (auto& page : doc.pages)
     {
-        auto& page = doc.pages[i];
-
         wxImage image {page.path};
         if (page.crop.IsEmpty ())
         {
-            page.crop = wxRect {images[i].GetSize ()};
+            page.crop = wxRect {image.GetSize ()};
             images.push_back (std::move (image));
         }
         else
