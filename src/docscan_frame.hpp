@@ -28,6 +28,8 @@ private:
     void on_next_page (wxCommandEvent& e);
     void on_prev_page (wxCommandEvent& e);
     void on_remove_page (wxCommandEvent& e);
+    void on_rotate_left (wxCommandEvent& e);
+    void on_rotate_right (wxCommandEvent& e);
     void reset_form ();
 
     Controller& controller_;

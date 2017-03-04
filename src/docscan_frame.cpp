@@ -6,6 +6,12 @@
 
 #include <wx/dnd.h>
 
+enum Frame_ids
+{
+    ID_ROTATE_LEFT = wxID_HIGHEST + 1,
+    ID_ROTATE_RIGHT,
+};
+
 wxBEGIN_EVENT_TABLE (Docscan_frame, wxFrame)
 EVT_NOTIFY (CROP_UPDATE_EVENT, wxID_ANY, Docscan_frame::on_crop_update)
 EVT_TEXT_ENTER (wxID_ANY, Docscan_frame::on_submit)
@@ -13,6 +19,8 @@ EVT_BUTTON (wxID_SAVE, Docscan_frame::on_submit)
 EVT_BUTTON (wxID_DOWN, Docscan_frame::on_next_page)
 EVT_BUTTON (wxID_UP, Docscan_frame::on_prev_page)
 EVT_BUTTON (wxID_REMOVE, Docscan_frame::on_remove_page)
+EVT_BUTTON (ID_ROTATE_LEFT, Docscan_frame::on_rotate_left)
+EVT_BUTTON (ID_ROTATE_RIGHT, Docscan_frame::on_rotate_right)
 wxEND_EVENT_TABLE ();
 
 class Drop_target : public wxFileDropTarget
@@ -56,8 +64,8 @@ Docscan_frame::Docscan_frame (Controller& controller)
 
     auto rotate_lbl = new wxStaticText {control_panel, wxID_ANY, "Rotate:"};
     auto rotate = new wxBoxSizer {wxHORIZONTAL};
-    auto rotate_left = new wxButton {control_panel, wxID_ANY, "Left"};
-    auto rotate_right = new wxButton {control_panel, wxID_ANY, "Right"};
+    auto rotate_left = new wxButton {control_panel, ID_ROTATE_LEFT, "Left"};
+    auto rotate_right = new wxButton {control_panel, ID_ROTATE_RIGHT, "Right"};
     rotate->Add (rotate_left);
     rotate->AddSpacer (3);
     rotate->Add (rotate_right);
@@ -174,26 +182,35 @@ bool Docscan_frame::on_drop_new_page (const wxArrayString& files)
     return true;
 }
 
-void Docscan_frame::on_crop_update (wxNotifyEvent& e)
+void Docscan_frame::on_crop_update (wxNotifyEvent&)
 {
     name_->SetFocus ();
 }
 
-void Docscan_frame::on_submit (wxCommandEvent& e)
+void Docscan_frame::on_submit (wxCommandEvent&)
 {
     controller_.on_submit ();
 }
-void Docscan_frame::on_next_page (wxCommandEvent& e)
+void Docscan_frame::on_next_page (wxCommandEvent&)
 {
     controller_.on_next_page ();
 }
-void Docscan_frame::on_prev_page (wxCommandEvent& e)
+void Docscan_frame::on_prev_page (wxCommandEvent&)
 {
     controller_.on_prev_page ();
 }
-void Docscan_frame::on_remove_page (wxCommandEvent& e)
+void Docscan_frame::on_remove_page (wxCommandEvent&)
 {
     controller_.on_remove_page ();
+}
+
+void Docscan_frame::on_rotate_left (wxCommandEvent&)
+{
+    std::cout << "Rotate left\n";
+}
+void Docscan_frame::on_rotate_right (wxCommandEvent&)
+{
+    std::cout << "Rotate right\n";
 }
 
 void Docscan_frame::reset_form ()
