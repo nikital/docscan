@@ -54,15 +54,29 @@ Docscan_frame::Docscan_frame (Controller& controller)
     auto multipage_lbl = new wxStaticText {control_panel, wxID_ANY, "Multipage:"};
     multipage_ = new Multipage_editor {control_panel, wxID_ANY};
 
+    auto rotate_lbl = new wxStaticText {control_panel, wxID_ANY, "Rotate:"};
+    auto rotate = new wxBoxSizer {wxHORIZONTAL};
+    auto rotate_left = new wxButton {control_panel, wxID_ANY, "Left"};
+    auto rotate_right = new wxButton {control_panel, wxID_ANY, "Right"};
+    rotate->Add (rotate_left);
+    rotate->AddSpacer (3);
+    rotate->Add (rotate_right);
+
     control->Add (name_lbl, 0, wxALIGN_RIGHT);
     control->Add (name_);
     control->Add (date_lbl, 0, wxALIGN_RIGHT);
     control->Add (date_);
     control->AddStretchSpacer ();
     control->Add (save);
-    control->Add (multipage_lbl);
+    control->Add (multipage_lbl, 0, wxALIGN_RIGHT);
     control->Add (multipage_);
+    control->Add (rotate_lbl, 0, wxALIGN_RIGHT);
+    control->Add (rotate);
     control_panel->SetSizer (control);
+
+    controls_ = {
+        name_, date_, save,
+        rotate_left, rotate_right};
 
     // initialized here and not in the initalization list because
     // wxWidgets has some bug related to focus that would steal focus
@@ -86,18 +100,22 @@ Docscan_frame::Docscan_frame (Controller& controller)
         std::bind (&Docscan_frame::on_drop_new_page, this, _1)};
     multipage_->SetDropTarget (new_page_drop_target);
     multipage_->DragAcceptFiles (true);
+
+    for (auto c : controls_) c->Disable ();
 }
 
 void Docscan_frame::load_page (const Page& page)
 {
     editor_->load_image (page.path);
     editor_->set_crop (page.crop);
+    for (auto c : controls_) c->Enable ();
 }
 
 void Docscan_frame::unload_page ()
 {
     editor_->unload_image ();
     reset_form ();
+    for (auto c : controls_) c->Disable ();
 }
 
 void Docscan_frame::pull_document_data (Document * doc, int selected_index)
@@ -113,6 +131,7 @@ void Docscan_frame::push_document_data (const Document& doc, int selected_index)
     date_->SetValue (doc.date);
     date_->SetInsertionPointEnd ();
     multipage_->set_pages (doc.pages, selected_index);
+    Layout ();
 }
 
 string Docscan_frame::show_jpeg_save_dialog (const string& name)

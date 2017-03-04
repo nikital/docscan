@@ -36,5 +36,7 @@ private:
     wxTextCtrl * name_;
     wxTextCtrl * date_;
 
+    std::vector<wxControl *> controls_;
+
     wxDECLARE_EVENT_TABLE ();
 };
