@@ -39,14 +39,15 @@ void Multipage_editor::set_pages (const std::vector<Page>& pages, int selected_i
     }
     else
     {
-        assert (selected_index >= 0 && selected_index < pages.size ());
         for (auto btn : buttons_) btn->Enable ();
-        for (size_t i = 0; i < pages.size (); ++i)
-        {
-            ss << (i == selected_index ? "> " : "- ");
-            wxFileName filename = pages[i].path;
-            ss << filename.GetName () << "\n";
-        }
+    }
+
+    assert (selected_index >= 0 && selected_index < pages.size ());
+    for (size_t i = 0; i < pages.size (); ++i)
+    {
+        ss << (i == selected_index ? "> " : "- ");
+        wxFileName filename = pages[i].path;
+        ss << filename.GetName () << "\n";
     }
     text_->SetLabel (ss.str ());
     SetInitialSize ();
