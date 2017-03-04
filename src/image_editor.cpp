@@ -23,22 +23,8 @@ Image_editor::Image_editor (wxWindow * parent, wxWindowID id)
 void Image_editor::load_image (const string& path)
 {
     std::cout << "Loading " << path << "\n";
-    wxImage image = {path, wxBITMAP_TYPE_ANY};
-    image_size_ = image.GetSize ();
-    bitmap_ = std::make_unique<wxBitmap> (image, wxBITMAP_TYPE_ANY);
-
-    auto downsample_resolution = this->GetSize ().Scale (0.8, 0.8);
-    if (image_size_.GetWidth () > downsample_resolution.GetWidth ()
-        || image_size_.GetHeight () > downsample_resolution.GetHeight ())
-    {
-        auto scale_w = (float) downsample_resolution.GetWidth () / image_size_.GetWidth ();
-        auto scale_h = (float) downsample_resolution.GetHeight () / image_size_.GetHeight ();
-        auto scale = std::max (scale_w, scale_h);
-        image.Rescale (
-            image_size_.GetWidth () * scale, image_size_.GetHeight () * scale,
-            wxIMAGE_QUALITY_HIGH);
-        downsampled_bitmap_ = std::make_unique<wxBitmap> (image, wxBITMAP_TYPE_ANY);
-    }
+    source_image_ = wxImage {path, wxBITMAP_TYPE_ANY};
+    update_image (source_image_);
 
     drop_here_->Hide ();
 
@@ -58,7 +44,7 @@ void Image_editor::unload_image ()
     Refresh ();
 }
 
-wxRect Image_editor::get_crop ()
+wxRect Image_editor::get_crop () const
 {
     if (state_ == State::CROPPED)
     {
@@ -73,6 +59,26 @@ void Image_editor::set_crop (const wxRect& crop)
     {
         crop_ = crop;
         state_ = State::CROPPED;
+    }
+}
+
+void Image_editor::update_image (const wxImage& image)
+{
+    image_size_ = image.GetSize ();
+    bitmap_ = std::make_unique<wxBitmap> (image, wxBITMAP_TYPE_ANY);
+
+    auto downsample_resolution = this->GetSize ().Scale (0.8, 0.8);
+    if (image_size_.GetWidth () > downsample_resolution.GetWidth ()
+        || image_size_.GetHeight () > downsample_resolution.GetHeight ())
+    {
+        auto scale_w = (float) downsample_resolution.GetWidth () / image_size_.GetWidth ();
+        auto scale_h = (float) downsample_resolution.GetHeight () / image_size_.GetHeight ();
+        auto scale = std::max (scale_w, scale_h);
+        auto downsampled = image;
+        downsampled.Rescale (
+            image_size_.GetWidth () * scale, image_size_.GetHeight () * scale,
+            wxIMAGE_QUALITY_HIGH);
+        downsampled_bitmap_ = std::make_unique<wxBitmap> (downsampled, wxBITMAP_TYPE_ANY);
     }
 }
 
