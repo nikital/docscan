@@ -20,10 +20,26 @@ Image_editor::Image_editor (wxWindow * parent, wxWindowID id)
     SetSizer (top);
 }
 
-void Image_editor::load_image (const string& path)
+void Image_editor::load_image (const string& path, int rotation)
 {
     std::cout << "Loading " << path << "\n";
     source_image_ = wxImage {path, wxBITMAP_TYPE_ANY};
+    switch (rotation)
+    {
+    case 0:
+        break;
+    case 90:
+        source_image_ = source_image_.Rotate90 (true);
+        break;
+    case 270:
+        source_image_ = source_image_.Rotate90 (false);
+        break;
+    case 180:
+        source_image_ = source_image_.Rotate180 ();
+        break;
+    default:
+        assert (0);
+    }
     update_image (source_image_);
 
     drop_here_->Hide ();
@@ -60,6 +76,17 @@ void Image_editor::set_crop (const wxRect& crop)
         crop_ = crop;
         state_ = State::CROPPED;
     }
+}
+
+void Image_editor::rotate_90 (bool clockwise)
+{
+    source_image_ = source_image_.Rotate90 (clockwise);
+    update_image (source_image_);
+
+    state_ = State::NONE;
+    emit_crop_update ();
+
+    Refresh ();
 }
 
 void Image_editor::update_image (const wxImage& image)

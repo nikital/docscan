@@ -10,6 +10,24 @@ bool Document_exporter::export_jpeg (const string& output, Document doc)
     for (auto& page : doc.pages)
     {
         wxImage image {page.path};
+
+        switch (page.rotation)
+        {
+        case 0:
+            break;
+        case 90:
+            image = image.Rotate90 (true);
+            break;
+        case 270:
+            image = image.Rotate90 (false);
+            break;
+        case 180:
+            image = image.Rotate180 ();
+            break;
+        default:
+            assert (0);
+        }
+
         if (page.crop.IsEmpty ())
         {
             page.crop = wxRect {image.GetSize ()};

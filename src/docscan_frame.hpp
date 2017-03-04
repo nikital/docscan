@@ -37,6 +37,7 @@ private:
     Multipage_editor * multipage_;
     wxTextCtrl * name_;
     wxTextCtrl * date_;
+    int rotation_ = 0;
 
     std::vector<wxControl *> controls_;
 

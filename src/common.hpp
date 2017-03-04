@@ -11,7 +11,8 @@ using string = wxString;
 struct Page
 {
     string path;
-    wxRect crop;
+    int rotation;
+    wxRect crop; // Crop coordinates are after rotation
 };
 
 struct Document

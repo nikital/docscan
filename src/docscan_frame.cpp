@@ -114,8 +114,9 @@ Docscan_frame::Docscan_frame (Controller& controller)
 
 void Docscan_frame::load_page (const Page& page)
 {
-    editor_->load_image (page.path);
+    editor_->load_image (page.path, page.rotation);
     editor_->set_crop (page.crop);
+    rotation_ = page.rotation;
     for (auto c : controls_) c->Enable ();
 }
 
@@ -131,6 +132,7 @@ void Docscan_frame::pull_document_data (Document * doc, int selected_index)
     doc->name = name_->GetValue ();
     doc->date = date_->GetValue ();
     doc->pages[selected_index].crop = editor_->get_crop ();
+    doc->pages[selected_index].rotation = rotation_;
 }
 
 void Docscan_frame::push_document_data (const Document& doc, int selected_index)
@@ -206,11 +208,15 @@ void Docscan_frame::on_remove_page (wxCommandEvent&)
 
 void Docscan_frame::on_rotate_left (wxCommandEvent&)
 {
-    std::cout << "Rotate left\n";
+    editor_->rotate_90 (false);
+    rotation_ -= 90;
+    rotation_ = (rotation_ + 360) % 360;
 }
 void Docscan_frame::on_rotate_right (wxCommandEvent&)
 {
-    std::cout << "Rotate right\n";
+    editor_->rotate_90 (true);
+    rotation_ += 90;
+    rotation_ = (rotation_ + 360) % 360;
 }
 
 void Docscan_frame::reset_form ()

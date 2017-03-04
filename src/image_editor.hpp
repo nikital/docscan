@@ -9,10 +9,11 @@ class Image_editor : public wxWindow
 public:
     Image_editor (wxWindow * parent, wxWindowID id);
 
-    void load_image (const string& path);
+    void load_image (const string& path, int rotation);
     void unload_image ();
     wxRect get_crop () const;
     void set_crop (const wxRect& crop);
+    void rotate_90 (bool clockwise);
 
 private:
     void update_image (const wxImage& image);
