@@ -45,6 +45,7 @@ void Image_editor::load_image (const string& path, int rotation)
     drop_here_->Hide ();
 
     state_ = State::NONE;
+    update_zoom ();
     emit_crop_update ();
 
     Refresh ();
@@ -75,6 +76,7 @@ void Image_editor::set_crop (const wxRect& crop)
     {
         crop_ = crop;
         state_ = State::CROPPED;
+        update_zoom ();
     }
 }
 
@@ -84,6 +86,7 @@ void Image_editor::rotate_90 (bool clockwise)
     update_image (source_image_);
 
     state_ = State::NONE;
+    update_zoom ();
     emit_crop_update ();
 
     Refresh ();
@@ -232,8 +235,6 @@ void Image_editor::on_mouse (wxMouseEvent& e)
         }
         else
         {
-            state_ = State::CROPPED;
-
             auto top_left = crop_.GetTopLeft ();
             auto bottom_right = crop_.GetBottomRight ();
             if (top_left.x > bottom_right.x) std::swap (top_left.x, bottom_right.x);
@@ -244,7 +245,9 @@ void Image_editor::on_mouse (wxMouseEvent& e)
                                                    image_size_, image_rect);
             crop_ *= wxRect {image_size_};
 
+            state_ = State::CROPPED;
         }
+        update_zoom ();
         emit_crop_update ();
         Refresh ();
     }
@@ -253,14 +256,41 @@ void Image_editor::on_mouse (wxMouseEvent& e)
 wxRect Image_editor::compute_image_rect ()
 {
     auto client_rect = GetClientRect ();
-    auto image_size = image_size_;
+    auto zoom_origin = zoom_view_.GetTopLeft ();
+    auto zoom_size = zoom_view_.GetSize ();
 
-    auto scale_w = (float) client_rect.GetWidth () / image_size.GetWidth ();
-    auto scale_h = (float) client_rect.GetHeight () / image_size.GetHeight ();
+    // Calculate how much to scale the image to fit the zoom rect
+    // inside the client rect
+    auto scale_w = (float) client_rect.GetWidth () / zoom_size.GetWidth ();
+    auto scale_h = (float) client_rect.GetHeight () / zoom_size.GetHeight ();
     auto scale = std::min (scale_w, scale_h);
-    image_size.Scale (scale, scale);
+    zoom_size.Scale (scale, scale);
 
-    return wxRect {image_size}.CenterIn (client_rect);
+    // Position the zoom rect in the center if the client rect
+    auto zoom_rect = wxRect {zoom_size}.CenterIn (client_rect);
+
+    // Scale other properties according to the final scale
+    auto image_size = image_size_;
+    image_size.Scale (scale, scale);
+    zoom_origin.x *= scale;
+    zoom_origin.y *= scale;
+
+    // Calculate the image rect from the newly positioned zoom rect
+    return wxRect {zoom_rect.GetTopLeft () - zoom_origin, image_size};
+}
+
+void Image_editor::update_zoom ()
+{
+    if (state_ == State::CROPPED)
+    {
+        zoom_view_ = crop_;
+        const auto margin = 20;
+        zoom_view_.Inflate (margin, margin);
+    }
+    else
+    {
+        zoom_view_ = wxRect {image_size_};
+    }
 }
 
 void Image_editor::emit_crop_update ()

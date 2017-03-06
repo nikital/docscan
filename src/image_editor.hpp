@@ -20,6 +20,7 @@ private:
     void on_paint (wxPaintEvent& e);
     void on_mouse (wxMouseEvent& e);
     wxRect compute_image_rect ();
+    void update_zoom ();
     void emit_crop_update ();
 
     wxStaticText * const drop_here_;
@@ -38,6 +39,7 @@ private:
     // When cropping, points are in windows space
     // When cropped, points are in image space
     wxRect crop_;
+    wxRect zoom_view_; // In image space
 
     wxDECLARE_EVENT_TABLE ();
 };
