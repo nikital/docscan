@@ -98,7 +98,6 @@ void Controller::on_submit ()
         return;
     }
 
-    std::cout << "pasten\n";
     auto success = Document_exporter::export_jpeg (path, *doc_);
     if (success)
     {
