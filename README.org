@@ -1,0 +1,17 @@
+* Build
+
+Debug:
+#+BEGIN_SRC sh
+mkdir out
+cd out
+cmake -DCMAKE_BUILD_TYPE=Debug ..
+make
+#+END_SRC
+
+Release
+#+BEGIN_SRC sh
+mkdir out
+cd out
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make
+#+END_SRC
