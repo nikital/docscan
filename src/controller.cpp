@@ -105,8 +105,8 @@ void Controller::on_submit ()
         doc_ = nullptr;
         if (!next_documents_.empty ())
         {
-            load_new_document ({next_documents_.back ()});
-            next_documents_.pop_back ();
+            load_new_document ({next_documents_.front ()});
+            next_documents_.erase (next_documents_.begin ());
         }
     }
     else
