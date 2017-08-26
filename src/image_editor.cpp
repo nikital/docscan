@@ -245,9 +245,8 @@ void Image_editor::on_mouse (wxMouseEvent& e)
                 if (top_left.x > bottom_right.x) std::swap (top_left.x, bottom_right.x);
                 if (top_left.y > bottom_right.y) std::swap (top_left.y, bottom_right.y);
 
-                auto image_rect = compute_image_rect ();
                 crop_ = image_space_from_window_space (wxRect {top_left, bottom_right},
-                                                       image_size_, image_rect);
+                                                       image_size_, compute_image_rect ());
                 crop_ *= wxRect {image_size_};
 
                 state_ = State::CROPPED;
