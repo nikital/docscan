@@ -33,7 +33,7 @@ private:
     enum class State
     {
         NONE,
-        CROPPING,
+        CROPPING_RECT,
         CROPPED,
     } state_ = State::NONE;
     // When cropping, points are in windows space

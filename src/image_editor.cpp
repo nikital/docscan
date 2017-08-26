@@ -168,7 +168,7 @@ void Image_editor::on_paint (wxPaintEvent& e)
         return;
     }
 
-    auto bitmap = (state_ == State::CROPPING && downsampled_bitmap_)
+    auto bitmap = (state_ == State::CROPPING_RECT && downsampled_bitmap_)
         ? downsampled_bitmap_.get () : bitmap_.get ();
     wxMemoryDC bitmap_dc {*bitmap};
     dc.Clear ();
@@ -182,7 +182,7 @@ void Image_editor::on_paint (wxPaintEvent& e)
 		bitmap->GetWidth (), bitmap->GetHeight ()
         );
 
-    if (state_ == State::CROPPING)
+    if (state_ == State::CROPPING_RECT)
     {
         dc.SetPen (wxPen {*wxRED, 4});
         dc.SetBrush (*wxTRANSPARENT_BRUSH);
@@ -220,7 +220,7 @@ void Image_editor::on_mouse (wxMouseEvent& e)
     {
         assert (state_ == State::NONE || state_ == State::CROPPED);
         crop_ = wxRect {e.GetPosition (), e.GetPosition ()};
-        state_ = State::CROPPING;
+        state_ = State::CROPPING_RECT;
     }
     if (e.Dragging ())
     {
