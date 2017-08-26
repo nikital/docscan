@@ -42,7 +42,9 @@ void Multipage_editor::set_pages (const std::vector<Page>& pages, int selected_i
         for (auto btn : buttons_) btn->Enable ();
     }
 
-    assert (selected_index >= 0 && selected_index < pages.size ());
+    if (!pages.empty ()) {
+        assert (selected_index >= 0 && selected_index < pages.size ());
+    }
     for (size_t i = 0; i < pages.size (); ++i)
     {
         ss << (i == selected_index ? "> " : "- ");
