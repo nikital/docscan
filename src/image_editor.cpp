@@ -216,40 +216,47 @@ void Image_editor::on_paint (wxPaintEvent& e)
 
 void Image_editor::on_mouse (wxMouseEvent& e)
 {
-    if (e.LeftDown ())
+    switch (state_)
     {
-        assert (state_ == State::NONE || state_ == State::CROPPED);
-        crop_ = wxRect {e.GetPosition (), e.GetPosition ()};
-        state_ = State::CROPPING_RECT;
-    }
-    if (e.Dragging ())
-    {
-        Refresh ();
-        crop_.SetBottomRight (e.GetPosition ());
-    }
-    if (e.LeftUp ())
-    {
-        if (crop_.GetLeft () == crop_.GetRight () || crop_.GetTop () == crop_.GetBottom ())
+    case State::NONE:
+    case State::CROPPED:
+        if (e.LeftDown ())
         {
-            state_ = State::NONE;
+            crop_ = wxRect {e.GetPosition (), e.GetPosition ()};
+            state_ = State::CROPPING_RECT;
         }
-        else
+        break;
+    case State::CROPPING_RECT:
+        if (e.Dragging ())
         {
-            auto top_left = crop_.GetTopLeft ();
-            auto bottom_right = crop_.GetBottomRight ();
-            if (top_left.x > bottom_right.x) std::swap (top_left.x, bottom_right.x);
-            if (top_left.y > bottom_right.y) std::swap (top_left.y, bottom_right.y);
-
-            auto image_rect = compute_image_rect ();
-            crop_ = image_space_from_window_space (wxRect {top_left, bottom_right},
-                                                   image_size_, image_rect);
-            crop_ *= wxRect {image_size_};
-
-            state_ = State::CROPPED;
+            Refresh ();
+            crop_.SetBottomRight (e.GetPosition ());
         }
-        update_zoom ();
-        emit_crop_update ();
-        Refresh ();
+        if (e.LeftUp ())
+        {
+            if (crop_.GetLeft () == crop_.GetRight () || crop_.GetTop () == crop_.GetBottom ())
+            {
+                state_ = State::NONE;
+            }
+            else
+            {
+                auto top_left = crop_.GetTopLeft ();
+                auto bottom_right = crop_.GetBottomRight ();
+                if (top_left.x > bottom_right.x) std::swap (top_left.x, bottom_right.x);
+                if (top_left.y > bottom_right.y) std::swap (top_left.y, bottom_right.y);
+
+                auto image_rect = compute_image_rect ();
+                crop_ = image_space_from_window_space (wxRect {top_left, bottom_right},
+                                                       image_size_, image_rect);
+                crop_ *= wxRect {image_size_};
+
+                state_ = State::CROPPED;
+            }
+            update_zoom ();
+            emit_crop_update ();
+            Refresh ();
+        }
+        break;
     }
 }
 
