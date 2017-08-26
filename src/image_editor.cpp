@@ -260,7 +260,7 @@ void Image_editor::on_mouse (wxMouseEvent& e)
     }
 }
 
-wxRect Image_editor::compute_image_rect ()
+wxRect Image_editor::compute_image_rect () const
 {
     auto client_rect = GetClientRect ();
     auto zoom_origin = zoom_view_.GetTopLeft ();

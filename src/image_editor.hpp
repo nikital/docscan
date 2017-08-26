@@ -19,9 +19,10 @@ private:
     void update_image (const wxImage& image);
     void on_paint (wxPaintEvent& e);
     void on_mouse (wxMouseEvent& e);
-    wxRect compute_image_rect ();
     void update_zoom ();
     void emit_crop_update ();
+
+    wxRect compute_image_rect () const;
 
     wxStaticText * const drop_here_;
     wxImage source_image_;
