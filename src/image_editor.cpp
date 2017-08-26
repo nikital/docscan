@@ -1,5 +1,7 @@
 #include "image_editor.hpp"
 
+#include <limits>
+
 wxDEFINE_EVENT (CROP_UPDATE_EVENT, wxNotifyEvent);
 
 wxBEGIN_EVENT_TABLE (Image_editor, wxWindow)
@@ -168,7 +170,8 @@ void Image_editor::on_paint (wxPaintEvent& e)
         return;
     }
 
-    auto bitmap = (state_ == State::CROPPING_RECT && downsampled_bitmap_)
+    auto bitmap = ((state_ == State::CROPPING_RECT || state_ == State::CROPPING_POINTS)
+                   && downsampled_bitmap_)
         ? downsampled_bitmap_.get () : bitmap_.get ();
     wxMemoryDC bitmap_dc {*bitmap};
     dc.Clear ();
@@ -187,6 +190,15 @@ void Image_editor::on_paint (wxPaintEvent& e)
         dc.SetPen (wxPen {*wxRED, 4});
         dc.SetBrush (*wxTRANSPARENT_BRUSH);
         dc.DrawRectangle (crop_);
+    }
+    else if (state_ == State::CROPPING_POINTS)
+    {
+        dc.SetPen (wxPen {*wxRED, 4});
+        dc.SetBrush (*wxTRANSPARENT_BRUSH);
+        for (auto i = 0; i < crop_points_count_; ++i)
+        {
+            dc.DrawLine (crop_points_[i], crop_points_[(i+1)%crop_points_count_]);
+        }
     }
     else if (state_ == State::CROPPED)
     {
@@ -225,6 +237,13 @@ void Image_editor::on_mouse (wxMouseEvent& e)
             crop_ = wxRect {e.GetPosition (), e.GetPosition ()};
             state_ = State::CROPPING_RECT;
         }
+        else if (e.RightDown ())
+        {
+            crop_points_[0] = e.GetPosition ();
+            crop_points_[1] = e.GetPosition ();
+            crop_points_count_ = 2;
+            state_ = State::CROPPING_POINTS;
+        }
         break;
     case State::CROPPING_RECT:
         if (e.Dragging ())
@@ -254,6 +273,44 @@ void Image_editor::on_mouse (wxMouseEvent& e)
             update_zoom ();
             emit_crop_update ();
             Refresh ();
+        }
+        break;
+    case State::CROPPING_POINTS:
+        Refresh ();
+        crop_points_[crop_points_count_ - 1] = e.GetPosition ();
+        if (e.RightDown ())
+        {
+            if (crop_points_count_ < 4)
+            {
+                crop_points_count_++;
+                crop_points_[crop_points_count_ - 1] = e.GetPosition ();
+            }
+            else
+            {
+                wxPoint top_left {std::numeric_limits<int>::max (), std::numeric_limits<int>::max ()};
+                wxPoint bottom_right {std::numeric_limits<int>::min (), std::numeric_limits<int>::min ()};
+                for (auto& p : crop_points_)
+                {
+                    top_left.x = std::min (top_left.x, p.x);
+                    top_left.y = std::min (top_left.y, p.y);
+                    bottom_right.x = std::max (bottom_right.x, p.x);
+                    bottom_right.y = std::max (bottom_right.y, p.y);
+                }
+
+                crop_ = image_space_from_window_space (wxRect {top_left, bottom_right},
+                                                       image_size_, compute_image_rect ());
+                crop_ *= image_size_;
+
+                state_ = State::CROPPED;
+                update_zoom ();
+                emit_crop_update ();
+            }
+        }
+        else if (e.LeftDown ())
+        {
+            state_ = State::NONE;
+            update_zoom ();
+            emit_crop_update ();
         }
         break;
     }

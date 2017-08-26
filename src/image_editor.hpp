@@ -35,11 +35,14 @@ private:
     {
         NONE,
         CROPPING_RECT,
+        CROPPING_POINTS,
         CROPPED,
     } state_ = State::NONE;
     // When cropping, points are in windows space
     // When cropped, points are in image space
     wxRect crop_;
+    wxPoint crop_points_[4];
+    int crop_points_count_;
     wxRect zoom_view_; // In image space
 
     wxDECLARE_EVENT_TABLE ();
