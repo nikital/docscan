@@ -15,3 +15,10 @@ cd out
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 #+END_SRC
+
+* Installing
+
+** Linux
+
+Copy =Docscan= to =~/.local/bin= and =docscan.desktop= to
+=~/.local/share/applications=
