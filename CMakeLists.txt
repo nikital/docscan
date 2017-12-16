@@ -1,11 +1,11 @@
 cmake_minimum_required (VERSION 3.6)
+project (docscan)
 
 find_package (wxWidgets REQUIRED)
 include (${wxWidgets_USE_FILE})
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-project (docscan)
 set (CMAKE_CXX_STANDARD 14)
 
 add_executable (Docscan MACOSX_BUNDLE
