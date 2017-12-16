@@ -103,11 +103,11 @@ Docscan_frame::Docscan_frame (Controller& controller)
     auto new_doc_drop_target = new Drop_target {
         std::bind (&Docscan_frame::on_drop_new_doc, this, _1)};
     SetDropTarget (new_doc_drop_target);
-    DragAcceptFiles (true);
+    // DragAcceptFiles (true);
     auto new_page_drop_target = new Drop_target {
         std::bind (&Docscan_frame::on_drop_new_page, this, _1)};
     multipage_->SetDropTarget (new_page_drop_target);
-    multipage_->DragAcceptFiles (true);
+    // multipage_->DragAcceptFiles (true);
 
     for (auto c : controls_) c->Disable ();
 }
