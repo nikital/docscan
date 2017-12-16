@@ -9,21 +9,25 @@ Multipage_editor::Multipage_editor (wxWindow * parent, wxWindowID id)
     : wxWindow {parent, id}
 {
     auto multipage = new wxStaticBoxSizer {wxVERTICAL, this};
+    wxSizerFlags padding;
+    padding.Border (wxALL, 10);
 
     auto buttons = new wxBoxSizer {wxHORIZONTAL};
-    auto size = wxSize {30, -1};
-    auto down = new wxButton {this, wxID_UP, "<", wxDefaultPosition, size};
+    auto down = new wxButton {this, wxID_UP, "<", wxDefaultPosition,
+                              wxDefaultSize, wxBU_EXACTFIT};
     buttons->Add (down);
-    auto up = new wxButton {this, wxID_DOWN, ">", wxDefaultPosition, size};
+    auto up = new wxButton {this, wxID_DOWN, ">", wxDefaultPosition,
+                            wxDefaultSize, wxBU_EXACTFIT};
     buttons->Add (up);
-    auto remove = new wxButton {this, wxID_REMOVE, "X", wxDefaultPosition, size};
+    auto remove = new wxButton {this, wxID_REMOVE, "X", wxDefaultPosition,
+                                wxDefaultSize, wxBU_EXACTFIT};
     buttons->Add (remove);
-    multipage->Add (buttons);
+    multipage->Add (buttons, padding);
     buttons_ = {down, up, remove};
 
     multipage->AddSpacer (5);
     text_ = new wxStaticText {this, wxID_ANY, ""};
-    multipage->Add (text_);
+    multipage->Add (text_, padding);
     SetSizer (multipage);
 
     set_pages ({}, 0);
