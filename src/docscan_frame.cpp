@@ -149,7 +149,7 @@ string Docscan_frame::show_jpeg_save_dialog (const string& name)
     wxFileDialog d {this, "Save scanned document",
             wxEmptyString, name,
             "JPEG file (*.jpg)|*.jpg",
-            wxFD_SAVE | wxFD_OVERWRITE_PROMPT};
+            wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR};
     d.ShowModal ();
     return d.GetPath ();
 }
